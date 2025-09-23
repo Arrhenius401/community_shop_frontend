@@ -174,7 +174,7 @@
 </template>
 
 <script>
-import { checkAdmin, getPostByUserID } from '../services/api';
+import { checkAdmin, getPostByUserID } from '../../services/api';
 
 export default {
   name: 'UserProfile',

@@ -219,8 +219,8 @@
 </template>
 
 <script>
-import { loginByEmail, loginByPhoneNumber } from '../services/api';
-import router from '../router';
+import { loginByEmail, loginByPhoneNumber } from '../../services/api';
+import router from '../../router';
 
 export default {
   name: 'UserLogin',

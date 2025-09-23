@@ -146,7 +146,7 @@
 //ref和reactive均是用于创建一个响应式对象的函数，其值被包裹在一个带有.value 属性的对象中
 //当这个值被修改时，任何依赖它的 DOM 或计算属性都会自动更新
 import { reactive } from 'vue'
-import { getHomePost } from '../services/api'
+import { getHomePost } from '../../services/api'
 
 export default {
   name: 'UserHome',

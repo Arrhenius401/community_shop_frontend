@@ -301,7 +301,7 @@
 </template>
 
 <script>
-import { registerDefaultUser } from '../services/api'
+import { registerDefaultUser } from '../../services/api'
 
 export default {
   name: 'UserRegister',

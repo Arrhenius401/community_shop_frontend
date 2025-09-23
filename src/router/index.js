@@ -1,23 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import UserHome from '../views/UserHome.vue';
-import UserLogin from '../views/UserLogin.vue';
-import UserProfile from '../views/UserProfile.vue';
-import UserChat from '../views/UserChat.vue';
-import UserRegister from '../views/UserRegister.vue';
-import UserForgotPassword from '../views/UserForgotPassword.vue';
+import UserHome from '../views/user/UserHome.vue';
+import UserLogin from '../views/user/UserLogin.vue';
+import UserProfile from '../views/user/UserProfile.vue';
+import UserChat from '../views/user/UserChat.vue';
+import UserRegister from '../views/user/UserRegister.vue';
+import UserForgotPassword from '../views/user/UserForgotPassword.vue';
 
-import PostDetail from '../views/PostDetail.vue';
-import PostCreate from '../views/PostCreate.vue';
+import PostDetail from '../views/post/PostDetail.vue';
+import PostCreate from '../views/post/PostCreate.vue';
 
-import ProductList from '../views/ProductList.vue';
-import ProductDetail from '../views/ProductDetail.vue';
+import ProductList from '../views/product/ProductList.vue';
+import ProductDetail from '../views/product/ProductDetail.vue';
 
-import OrderDetail from '../views/OrderDetail.vue';
-import OrderConfirm from '../views/OrderConfirm.vue';
-import OrderPayment from '../views/OrderPayment.vue';
+import OrderDetail from '../views/Order/OrderDetail.vue';
+import OrderConfirm from '../views/Order/OrderConfirm.vue';
+import OrderPayment from '../views/Order/OrderPayment.vue';
 
-import AdminPanel from '../views/AdminPanel.vue';
+import AdminPanel from '../views/admin/AdminPanel.vue';
 
 import { checkAdmin, checkToken } from '../services/api';
 

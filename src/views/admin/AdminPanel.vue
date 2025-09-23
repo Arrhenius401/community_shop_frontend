@@ -748,7 +748,7 @@
 </template>
 
 <script>
-import { getAllPost, getAllUser, updatePostStatus, updateUserStatus } from '../services/api'
+import { getAllPost, getAllUser, updatePostStatus, updateUserStatus } from '../../services/api'
 
 export default {
   name: 'AdminPanel',
