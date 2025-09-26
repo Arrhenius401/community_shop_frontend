@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "useDefineForClassFields": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "jsx": "preserve",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["esnext", "dom"],
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+
+    // 其他配置不变
+    "outDir": "./dist/ts",  // 指定编译输出目录，避免覆盖源文件
+    "noEmit": true, // 不生成编译输出文件
+    "allowJs": true,  // 允许导入.js文件
+    "checkJs": false  // 暂不检查.js文件的类型（可选，降低迁移阻力）
+
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/main.js"],
+  "exclude": ["node_modules", "src/**/*.js"]
+}

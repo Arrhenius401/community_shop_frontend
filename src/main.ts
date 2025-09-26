@@ -6,10 +6,6 @@ import './index.css';
 //基础: 创建应用实例
 const app = createApp(App);
 
-//基础: 配置应用
-app.config.productionTip = false; 
-
-
 //全局错误处理
 app.config.errorHandler = (err, vm, info) => {
     console.error('出现全局错误: ', err, info)
@@ -17,14 +13,16 @@ app.config.errorHandler = (err, vm, info) => {
 
 //全局属性
 //全局过滤器函数$formatTime
-app.config.globalProperties.$formatTime = function(time){
+app.config.globalProperties.$formatTime = function(time: Date){
     //检查time是否是Date类型对象
     if(!(time instanceof Date)){
         return "";
     }
 
     const now =new Date()
-    const diff = now - time
+    const diff = now.getTime() - time.getTime()  //时间差的毫秒数
+    
+    //计算时间差的分钟数、小时数、天数
     const minutes = Math.floor(diff / (1000 *60))   //Math.floor向下取整
     const hours = Math.floor(diff / (1000 * 60 * 60))
     const days = Math.floor(diff / (1000 * 60 *60 * 24))
@@ -38,7 +36,7 @@ app.config.globalProperties.$formatTime = function(time){
 }
 
 //定义人民币的标准货币格式
-app.config.globalProperties.$formatePrice = function(price){
+app.config.globalProperties.$formatePrice = function(price: number){
     return new Intl.NumberFormat('zh-CN', { //指定语言环境为中文
         style: 'currency',  //指定格式化为货币
         currency: 'CNY'     //指定货币类型为人民币

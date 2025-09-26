@@ -1,5 +1,8 @@
+/** @type {import('tailwindcss').Config} */
+
+
 module.exports = {
-  content: ["./src/**/*.{vue,html,js,ts,jsx,tsx}"],
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],  // 扫描需要处理的文件
   purge: [],
   theme: {
     extend: {},

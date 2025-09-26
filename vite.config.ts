@@ -2,6 +2,8 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
+import tailwindcss from 'tailwindcss'
+import autoprefixer from 'autoprefixer'
 
 export default defineConfig({
   // 项目根目录（可选，默认当前目录）
@@ -30,8 +32,8 @@ export default defineConfig({
   css: {
     postcss: {
       plugins: [
-        require('tailwindcss'),  // 使用最新版 tailwindcss
-        require('autoprefixer')  // 自动前缀
+        tailwindcss(),  // 移除require，直接使用导入的变量
+        autoprefixer()  // 移除require，直接使用导入的变量
       ]
     }
   },
