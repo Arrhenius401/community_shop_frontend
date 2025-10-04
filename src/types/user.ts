@@ -9,25 +9,42 @@ import { PageParam, PageResult, SortDirection } from "./common";
  * 登录类型枚举（对应后端 LoginTypeEnum）
  * 定义支持的登录方式，与后端登录接口校验规则一致
  */
-export type LoginType = "USERNAME" | "PHONE" | "EMAIL";
+export enum LoginType {
+  PASSWORD = "PASSWORD",
+  PHONE = "PHONE",
+  EMAIL = "EMAIL",
+  THIRD_PARTY = "THIRD_PARTY",
+}
 
 /**
  * 性别枚举（对应后端 GenderEnum）
  * 适配用户资料更新场景，限定性别可选值
  */
-export type Gender = "MALE" | "FEMALE" | "UNKNOWN";
+export enum Gender {
+  MALE = "MALE",
+  FEMALE = "FEMALE",
+  SECRET = "SECRET",
+  UNKNOWN = "UNKNOWN",
+}
 
 /**
  * 第三方平台类型枚举（对应后端 ThirdPartyTypeEnum）
  * 定义支持绑定/登录的第三方平台，与后端第三方账号接口逻辑对齐
  */
-export type ThirdPartyType = "WECHAT" | "QQ" | "ALIPAY";
+export enum ThirdPartyType {
+  WECHAT = "WECHAT",
+  QQ = "QQ",
+  GITHUB = "GITHUB",
+}
 
 /**
  * 用户排序字段枚举（对应后端 ProductSortFieldEnum，后端文档中用户查询复用该枚举）
  * 定义用户列表支持的排序维度，与后端筛选逻辑一致
  */
-export type UserSortField = "initTime" | "createTime";
+export enum UserSortField {
+  INIT_TIME = "initTime",
+  CREATE_TIME = "createTime"
+}
 
 // ------------------------------ 登录相关 DTO ------------------------------
 /**
