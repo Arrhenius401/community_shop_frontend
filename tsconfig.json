@@ -25,6 +25,6 @@
     "checkJs": false  // 暂不检查.js文件的类型（可选，降低迁移阻力）
 
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/main.js"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/main.js", "src/api/request.js"],
   "exclude": ["node_modules", "src/**/*.js"]
 }
