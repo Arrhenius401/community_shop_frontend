@@ -1,3 +1,8 @@
+/**
+ * 用户相关 API 接口封装
+ * /src/api/user.ts
+ */
+
 import request from './request';
 import type {
   LoginParams,

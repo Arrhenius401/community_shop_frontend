@@ -1,3 +1,8 @@
+/**
+ * 商品相关 API 接口封装
+ * /src/api/product.ts
+ */
+
 import request from './request';
 import type {
   ProductPublishParams,

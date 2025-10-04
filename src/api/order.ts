@@ -1,3 +1,8 @@
+/**
+ * 订单相关 API 接口封装
+ * /src/api/order.ts
+ */
+
 import request from './request';
 import type {
   OrderCreateParams,

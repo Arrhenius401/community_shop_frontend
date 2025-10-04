@@ -1,3 +1,8 @@
+/**
+ * 消息相关 API 接口封装
+ * /src/api/message.ts
+ */
+
 import request from './request';
 import type {
   MessageSendParams,

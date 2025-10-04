@@ -1,3 +1,8 @@
+/**
+ * 帖子相关 API 接口封装
+ * /src/api/post.ts
+ */
+
 import request from './request';
 import type {
   PostPublishParams,

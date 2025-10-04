@@ -1,3 +1,9 @@
+/**
+ * Axios 实例封装，包含请求与响应拦截器
+ * 统一处理权限令牌携带与后端 ResultVO 格式解析
+ * /src/api/request.ts
+ */
+
 import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { useUserStore } from '@/stores/user'; 
 

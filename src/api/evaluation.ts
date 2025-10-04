@@ -1,3 +1,8 @@
+/**
+ * 评价相关 API 接口封装
+ * /src/api/evaluation.ts
+ */
+
 import request from './request';
 import type {
   EvaluationSubmitParams,
