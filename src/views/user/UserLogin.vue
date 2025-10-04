@@ -219,7 +219,7 @@
 </template>
 
 <script>
-import { loginByEmail, loginByPhoneNumber } from '../../services/api';
+import { loginByPassword, LoginParams, LoginType } from '../../api/user';
 import router from '../../router';
 
 export default {
@@ -259,22 +259,9 @@ export default {
   },
   methods: {
     
-    //判断account状态
     emailOrPhoneNumber(account) {
-      let status = ''
-      // 邮箱验证
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      // 手机号验证
-      const phoneRegex = /^1[3-9]\d{9}$/
-      
-      if (emailRegex.test(account) ) {
-        status = 'email'
-      }else if(phoneRegex.test(account)){
-        status = 'phoneNunber'
-      }else{
-        status = 'invalid'
-      }
-      return status
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(account) ? 'email' : 'phoneNumber';
     },
 
     validateAccount() {
