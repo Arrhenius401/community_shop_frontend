@@ -1,4 +1,8 @@
-// 引入通用分页类型，适配商品列表查询的分页需求；复用排序方向通用类型
+/**
+ * product 模块数据模型定义(DTO)
+ * /src/types/product.ts
+ */
+
 import { PageParam, PageResult, SortDirection } from "./common";
 
 /**

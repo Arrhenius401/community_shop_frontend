@@ -1,4 +1,8 @@
-// 引入通用类型，复用分页、排序、基础用户信息等通用结构
+/**
+ * post 模块数据模型定义(DTO)
+ * /src/types/post.ts
+ */
+
 import { PageParam, PageResult, SortDirection, BaseUserInfo } from "./common";
 
 /**

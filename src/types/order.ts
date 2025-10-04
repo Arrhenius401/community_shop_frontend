@@ -1,4 +1,8 @@
-// 引入通用分页类型，适配订单列表查询的分页需求
+/**
+ * order 模块数据模型定义(DTO)
+ * /src/types/order.ts
+ */
+
 import { PageParam, PageResult, SortDirection } from "./common";
 
 /**

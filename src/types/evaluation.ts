@@ -1,4 +1,8 @@
-// 引入通用分页类型，适配评价列表分页查询需求
+/**
+ * evaluation 模块数据模型定义(DTO)
+ * /src/types/evaluation.ts
+ */
+
 import { PageParam, PageResult, SortDirection, BaseUserInfo } from "./common";
 
 /**

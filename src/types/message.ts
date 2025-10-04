@@ -1,4 +1,8 @@
-// 引入通用分页类型，适配消息列表查询的分页需求；引入基础用户信息类型，复用发送者/接收者共性字段
+/**
+ * message 模块数据模型定义(DTO)
+ * /src/types/message.ts
+ */
+
 import { PageParam, PageResult, SortDirection, BaseUserInfo } from "./common";
 
 /**

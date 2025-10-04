@@ -1,4 +1,8 @@
-// 引入通用分页类型，适配用户列表查询的分页需求
+/**
+ * user 模块数据模型定义(DTO)
+ * /src/types/user.ts
+ */
+
 import { PageParam, PageResult, SortDirection } from "./common";
 
 /**
