@@ -1,4 +1,5 @@
 import { createApp } from 'vue';
+import { createPinia } from 'pinia'; // 导入 Pinia 创建函数
 import App from './App.vue';
 import router from './router'; // 引入路由
 import './index.css';
@@ -6,6 +7,21 @@ import './index.css';
 //基础: 创建应用实例
 const app = createApp(App);
 
+//基础: 创建 Pinia 实例
+const pinia = createPinia();
+
+//基础: 使用 Pinia
+app.use(pinia);
+
+//基础: 使用插件
+app.use(router);
+
+//基础: 挂载应用
+app.mount('#app');
+
+
+
+//======================== 进阶: 全局配置和属性 ========================
 //全局错误处理
 app.config.errorHandler = (err, vm, info) => {
     console.error('出现全局错误: ', err, info)
@@ -43,11 +59,3 @@ app.config.globalProperties.$formatePrice = function(price: number){
     }).format(price)
 
 }
-
-
-
-//基础: 使用插件
-app.use(router);
-
-//基础: 挂载应用
-app.mount('#app');
