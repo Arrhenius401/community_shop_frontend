@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
+// 引入user相关的界面组件
 import UserHome from '../views/user/UserHome.vue';
 import UserLogin from '../views/user/UserLogin.vue';
 import UserProfile from '../views/user/UserProfile.vue';
@@ -7,16 +8,24 @@ import UserChat from '../views/user/UserChat.vue';
 import UserRegister from '../views/user/UserRegister.vue';
 import UserForgotPassword from '../views/user/UserForgotPassword.vue';
 
+// 引入message相关的界面组件
+import MessageCenter from '@/views/message/MessageCenter.vue';
+import MessageDetail from '@/views/message/MessageDetail.vue';
+
+// 引入post相关的界面组件
 import PostDetail from '../views/post/PostDetail.vue';
 import PostCreate from '../views/post/PostCreate.vue';
 
+// 引入product相关的界面组件
 import ProductList from '../views/product/ProductList.vue';
 import ProductDetail from '../views/product/ProductDetail.vue';
 
+// 引入order相关的界面组件
 import OrderDetail from '../views/Order/OrderDetail.vue';
 import OrderConfirm from '../views/Order/OrderConfirm.vue';
 import OrderPayment from '../views/Order/OrderPayment.vue';
 
+// 引入管理员相关的界面组件
 import AdminPanel from '../views/admin/AdminPanel.vue';
 
 import { checkAdmin, checkToken } from '../services/api';
@@ -69,6 +78,22 @@ const routes = [
     meta:{
       requiresGuest: true,
       title: '找回密码 - Graygoo的web'
+    }
+  },{
+    path: '/messageCenter',
+    name: 'MessageCenter',
+    component: MessageCenter,
+    meta: { 
+      requiresAuth: true,
+      title: '消息中心 - Graygoo的web'
+    }
+  },{
+    path: '/messageDetail/:id',
+    name: 'MessageDetail',
+    component: MessageDetail,
+    meta: { 
+      requiresAuth: true,
+      title: '消息详情 - Graygoo的web'
     }
   },{
     path: '/postDetail/:id',
