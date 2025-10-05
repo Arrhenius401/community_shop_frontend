@@ -4,6 +4,7 @@
  */
 
 import request from './request';
+import { ResultVO } from '@/types/common';
 import type {
   LoginParams,
   LoginResult,
