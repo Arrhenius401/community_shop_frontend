@@ -218,9 +218,20 @@
   </div>
 </template>
 
-<script>
-import { loginByPassword, LoginParams, LoginType } from '../../api/user';
+
+
+<script lang="ts">
+interface FormErrors {
+  account?: string | null;
+  password?: string | null;
+  captcha?: string | null;
+  field?: string | null;
+}
+
+import { loginByPassword } from '../../api/user';
+import {LoginParams, LoginResult, LoginType } from '../../types/user';
 import router from '../../router';
+import { BusinessError } from '@/utils/error';
 
 export default {
   name: 'UserLogin',
@@ -236,7 +247,7 @@ export default {
         text: '',
         type: ''  //'success' or 'error'
       },
-      errors: {},
+      errors: {} as FormErrors,
       loading: false,
       showPassword: false,
       showCaptcha: false,
@@ -259,9 +270,22 @@ export default {
   },
   methods: {
     
-    emailOrPhoneNumber(account) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailRegex.test(account) ? 'email' : 'phoneNumber';
+    //判断account状态
+    emailOrPhoneNumber(account: string) {
+      let status = ''
+      // 邮箱验证
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      // 手机号验证
+      const phoneRegex = /^1[3-9]\d{9}$/
+      
+      if (emailRegex.test(account) ) {
+        status = 'email'
+      }else if(phoneRegex.test(account)){
+        status = 'phoneNunber'
+      }else{
+        status = 'invalid'
+      }
+      return status
     },
 
     validateAccount() {
@@ -314,7 +338,7 @@ export default {
       return true
     },
     
-    clearError(field) {
+    clearError(field: keyof FormErrors) {
       if (this.errors[field]) {
         delete this.errors[field]
       }
@@ -332,7 +356,7 @@ export default {
     
     checkCaptchaRequired() {
       // 检查登录失败次数，超过3次显示验证码
-      const attempts = localStorage.getItem('loginAttempts') || 0
+      const attempts = localStorage.getItem('loginAttempts') || '0'
       this.loginAttempts = parseInt(attempts)
       this.showCaptcha = this.loginAttempts >= 3
     },
@@ -353,55 +377,56 @@ export default {
       this.loading = true
       
       try {
-        const account = this.form.account.trim()
-        const password = this.form.password
-        let status = this.emailOrPhoneNumber(account)
-        let response
+        const loginParams: LoginParams = {
+          loginType: LoginType.PASSWORD,
+          loginId: this.form.account.trim(),
+          credential: this.form.password,
+          verifyCode: this.showCaptcha ? this.form.captcha : undefined
+        }
+        let response: LoginResult
+        let status = this.emailOrPhoneNumber(loginParams.loginId)
         
         // 清除之前的消息
         this.message.text = ''
 
-        status = this.emailOrPhoneNumber(account)
+        status = this.emailOrPhoneNumber(loginParams.loginId)
         //调用登录API
-        if(status == 'email'){
+        if(status == 'email' || status == 'phoneNunber'){
           //输出日志
-          console.log("发出登录请求: 邮箱 = ",account,";密码 = ",password)
-          response = await loginByEmail(account, password);
-        }else if(status == 'phoneNunber'){
-          //输出日志
-          console.log("发出登录请求: 电话号码 = ",account,";密码 = ",password)
-          response = await loginByPhoneNumber(account,password)
+          console.log("发出登录请求: 凭证信息 = ",loginParams.loginId,";密码 = ",loginParams.credential)
+          response = await loginByPassword(loginParams)
         }else{
           //输出日志
           console.log("发出非法登录请求，代码错误")
           return
         }
           
-
-        //处理登录结果
-        if(response.status === "ok"){
-          //登录成功，跳转到首页
-          this.message.text = '登录成功！正在跳转...'
-          this.message.type = 'success'
-          //存储token
-          localStorage.setItem("local-token",JSON.stringify(response))
-          router.push('/');
-        }else if(response.status === "wrong password"){
-          this.message.text = '密码错误，请重试'
-          this.message.type = 'error'
-        }else if(response.status === "wrong credential"){
-          this.message.text = '不存在该用户，请注册'
-          this.message.type = 'error'
-        }else{
-          this.message.text = '代码错误'
-          this.message.type = 'error'
-        }
+        //登录成功，跳转到首页
+        this.message.text = '登录成功！正在跳转...'
+        this.message.type = 'success'
+        //存储token
+        localStorage.setItem("local-token",JSON.stringify(response))
+        router.push('/');
         
-      }catch (error) {
-      //处理网络错误
-      this.message.text = '登录失败，请稍后重试'
-      this.message.type = 'error'
-      console.error("登录请求失败:",error);
+      }catch (error: any) {
+        if(error instanceof BusinessError){
+          this.message.text = error.message
+          this.message.type = 'error'
+        } else {
+          if(error.code === 400){
+            this.message.text = '请求参数错误，请检查输入'
+            this.message.type = 'error'
+            return
+          }else if(error.code === 401){
+            this.message.text = '未授权，请检查凭证'
+            this.message.type = 'error'
+            return
+          }
+          //处理网络错误
+          this.message.text = '登录失败，请稍后重试'
+          this.message.type = 'error'
+          console.error("登录请求失败:",error);
+        }
       }finally{
         this.loading = false
       }
@@ -409,19 +434,19 @@ export default {
 
     
     async loginWithWechat() {
-      this.$parent.showToast({
+      this.$emit('show-toast', {
         type: 'info',
         title: '功能开发中',
         message: '微信登录功能正在开发中'
-      })
+      });
     },
-    
+
     async loginWithQQ() {
-      this.$parent.showToast({
+      this.$emit('show-toast', {
         type: 'info',
         title: '功能开发中',
         message: 'QQ登录功能正在开发中'
-      })
+      });
     }
   }
 }
