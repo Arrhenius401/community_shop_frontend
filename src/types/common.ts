@@ -6,6 +6,17 @@
 
 
 /**
+ * 通用返回结果封装（对应后端 ResultVO 类）
+ * 适用于所有返回结果场景，如用户登录、用户查询、商品查询等
+ */
+export interface ResultVO<T = any> {
+  code: string;
+  message: string;
+  data: T;
+  timestamp: number;
+}
+
+/**
  * 通用分页查询参数（对应后端 PageParam 类）
  * 适配所有需要分页的查询场景，如商品列表、帖子列表、消息列表等
  */
@@ -40,7 +51,12 @@ export interface PageResult<T> {
  * 通用排序方向枚举（对应后端 SortDirectionEnum）
  * 适配所有需要排序的查询场景，如帖子按点赞数排序、消息按时间排序等
  */
-export type SortDirection = "ASC" | "DESC";
+export enum SortDirection {
+  /** 升序 */
+  ASC = "ASC",
+  /** 降序 */
+  DESC = "DESC"
+}
 
 /**
  * 通用状态枚举基础类型（适配后端各模块状态枚举的共性）
