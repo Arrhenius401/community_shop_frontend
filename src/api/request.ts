@@ -4,10 +4,20 @@
  * /src/api/request.ts
  */
 
-import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
+import type { ResultVO } from '@/types/common';
 import { useUserStore } from '@/stores/user'; 
+import { BusinessError } from '@/utils/error';
 
-//Axios请求返回的是一个promise对象，其中response.data对象是后端返回的真正数据
+/**
+ * Axios请求返回的是一个promise对象，其中response.data对象是后端返回的真正数据
+ * 调用 request.post() 本质上是发送一个 HTTP 请求，这个过程需要时间（网络传输、后端处理等），无法立即拿到结果
+ * JavaScript 中处理异步操作的标准方式就是使用 Promise。
+ * 
+ * 通过 await 或 .then() 可以从中提取出实际的 LoginResult 数据
+ * 即要从 Promise<LoginResult> 中拿到实际的 LoginResult 数据，需要通过 await 或 .then() 处理：
+ */
+
 /* response = {
   data: {},         // 后端返回的实际数据（JSON/字符串等）
   status: 200,      // HTTP状态码
@@ -16,13 +26,26 @@ import { useUserStore } from '@/stores/user';
   request: {...}    // 请求对象
 } */
 
+// 声明 request 实例的类型：调用 request.post<T> 时，返回 Promise<T['data']>
+// 原生 axios 的类型是 Promise<AxiosResponse<T>>，需剥离一层 response.data
+interface CustomAxiosInstance extends AxiosInstance {
+  <T = any>(config: AxiosRequestConfig): Promise<T>;
+  request<T = any>(config: AxiosRequestConfig): Promise<T>;
+  get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
+  delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
+  head<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
+  post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>;
+  put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>;
+  patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>;
+}
+
 /**
  * 创建Axios实例，基础配置严格对齐后端Controller层规范
  * - baseURL：匹配后端接口统一前缀（文档中所有接口均以/api/v1开头）
  * - timeout：设置10秒超时（避免后端长耗时接口异常阻塞）
  * - headers：默认JSON格式，匹配后端@RequestBody接收逻辑
  */
-const request = axios.create({
+const request: CustomAxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8090/api/v1', // 后端服务默认端口+接口前缀，适配文档规范
   timeout: 10000,
   headers: {
@@ -56,17 +79,17 @@ request.interceptors.request.use(
  */
 request.interceptors.response.use(
   (response: AxiosResponse) => {
-    const resultVO = response.data; // 后端返回的完整ResultVO对象
-    const { code, message, data } = resultVO;
+    const res = response.data as ResultVO<any>; // 明确类型为 ResultVO
+    const { code, message, data, timestamp } = res;
 
     // 1. 成功响应：code=200（文档定义成功状态码），直接返回业务数据（ResultVO.data字段）
-    if (code === 200) {
-      return data; // 前端API调用时无需手动提取data，直接获取业务数据（如UserDetail、PostListPageResult）
+    if (code == "200") {
+      return res.data; // 前端API调用时无需手动提取data，直接获取业务数据（如UserDetail、PostListPageResult）
     }
 
     // 2. 业务异常：匹配后端GlobalExceptionHandler处理的异常类型
     // 文档中定义的业务异常code：400（参数错误）、403（权限不足）等
-    throw new Error(`业务异常：${message || '操作失败'}`);
+    throw new BusinessError(code, `${message || '操作失败'}`);
   },
   (error: AxiosError) => {
     // 3. 系统异常/网络异常：匹配后端兜底异常与HTTP状态码
