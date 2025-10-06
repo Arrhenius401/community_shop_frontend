@@ -221,17 +221,17 @@
 
 
 <script lang="ts">
+import { loginByPassword } from '../../api/user';
+import {LoginParams, LoginResult, LoginType } from '../../types/user';
+import router from '../../router';
+import { BusinessError } from '@/utils/error';
+
 interface FormErrors {
   account?: string | null;
   password?: string | null;
   captcha?: string | null;
   field?: string | null;
 }
-
-import { loginByPassword } from '../../api/user';
-import {LoginParams, LoginResult, LoginType } from '../../types/user';
-import router from '../../router';
-import { BusinessError } from '@/utils/error';
 
 export default {
   name: 'UserLogin',
