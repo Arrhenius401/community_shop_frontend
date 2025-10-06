@@ -107,7 +107,7 @@
               <button
                 type="button"
                 @click="sendSmsCode"
-                :disabled="!form.phone || errors.phone || smsCountdown > 0"
+                :disabled="!(form.phone && !errors.phone && smsCountdown <= 0)"
                 class="px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
               >
                 {{ smsCountdown > 0 ? `${smsCountdown}s` : '发送验证码' }}
@@ -300,8 +300,19 @@
   </div>
 </template>
 
-<script>
-import { registerDefaultUser } from '../../services/api'
+<script lang="ts">
+import { register } from '../../api/user'; // 导入注册API
+import { RegisterParams } from '../../types/user'; // 导入注册参数类型
+import { BusinessError } from '@/utils/error';
+
+interface FormErrors {
+  username?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  smsCode?: string | null;
+  password?: string | null;
+  confirmPassword?: string | null;
+}
 
 export default {
   name: 'UserRegister',
@@ -319,7 +330,7 @@ export default {
         text: '',
         type: ''  //'success' or 'error'
       },
-      errors: {},
+      errors: {} as FormErrors,
       loading: false,
       showPassword: false,
       showConfirmPassword: false,
@@ -453,7 +464,7 @@ export default {
       return true
     },
     
-    clearError(field) {
+    clearError(field: keyof FormErrors) {
       if (this.errors[field]) {
         delete this.errors[field]
       }
@@ -476,13 +487,13 @@ export default {
           }
         }, 1000)
         
-        this.$parent.showToast({
+        this.$emit('showToast', {
           type: 'success',
           title: '验证码已发送',
           message: '请查收短信验证码'
         })
       } catch (error) {
-        this.$parent.showToast({
+        this.$emit('showToast', {
           type: 'error',
           title: '发送失败',
           message: '短信验证码发送失败，请稍后重试'
@@ -490,12 +501,12 @@ export default {
       }
     },
     
-    getStrengthColor(strength) {
+    getStrengthColor(strength: number) {
       const colors = ['bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-green-400']
       return colors[strength - 1] || 'bg-gray-200'
     },
     
-    getStrengthText(strength) {
+    getStrengthText(strength: number) {
       const texts = ['弱', '一般', '中等', '强']
       return texts[strength - 1] || '无'
     },
@@ -524,7 +535,7 @@ export default {
       }
       
       if (!this.form.agreement) {
-        this.$parent.showToast({
+        this.$emit('showToast', {
           type: 'warning',
           title: '请同意用户协议',
           message: '请阅读并同意用户协议和隐私政策'
@@ -535,42 +546,48 @@ export default {
       this.loading = true
       
       try {
-        let response = ''
-        response = await registerDefaultUser(this.form.username, this.form.email, this.form.phone, this.form.password)
 
+        // 构造符合RegisterParams类型的参数
+        const registerParams: RegisterParams = {
+          username: this.form.username,
+          phoneNumber: this.form.phone,
+          email: this.form.email,
+          password: this.form.password,
+          verifyCode: this.form.smsCode // 验证码对应smsCode
+        };
         
-        //处理登录结果
-        if(response === "ok"){
-          //登录成功，跳转到首页
-          this.message.text = '登录成功！正在跳转...'
-          this.message.type = 'success'
-          //等待两秒
-          //使用立即执行的async函数封装延迟逻辑
+        // 调用注册API
+        const response = await register(registerParams);
+        
+        // 处理注册成功逻辑
+        if (response.token) {
+          this.message.text = '注册成功！正在跳转...';
+          this.message.type = 'success';
+          
+          // 存储token和用户信息
+          localStorage.setItem('local-token', JSON.stringify({
+            token: response.token,
+            user: response.userInfo,
+            expireTime: response.tokenExpireTime
+          }));
+          
           await new Promise(resolve => setTimeout(resolve, 2000));
           this.$router.push('/login');
-        }else if(response === "email and phoneNumber exist"){
-          this.message.text = '邮箱地址与电话号码均已注册，请更换'
-          this.message.type = 'error'
-        }else if(response === "email exists"){
-          this.message.text = '邮箱地址已注册，请更换'
-          this.message.type = 'error'
-        }else if(response === "phoneNumber exists"){
-          this.message.text = '电话号码已注册，请更换'
-          this.message.type = 'error'
-        }else if(response === "database break"){
-          this.message.text = '数据库崩溃'
-          this.message.type = 'error'
-        }else{
-          this.message.text = '代码错误'
-          this.message.type = 'error'
         }
+
         
-      }catch (error) {
-      //处理网络错误
-      this.message.text = '登录失败，请稍后重试'
-      this.message.type = 'error'
-      console.error("登录请求失败:",error);
-      }finally{
+      } catch (error: any) {
+        if (error instanceof BusinessError) {
+          //处理业务错误
+          this.message.text = error.message
+          this.message.type = 'error'
+        } else {
+          //处理网络错误
+          this.message.text = '注册失败，请稍后重试'
+          this.message.type = 'error'
+          console.error("注册请求失败:",error);
+        }
+      } finally{
         this.loading = false
       }
     }
