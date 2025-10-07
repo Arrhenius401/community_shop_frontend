@@ -225,6 +225,7 @@ import { loginByPassword } from '../../api/user';
 import {LoginParams, LoginResult, LoginType } from '../../types/user';
 import router from '../../router';
 import { BusinessError } from '@/utils/error';
+import { useUserStore } from '@/stores/user';
 
 interface FormErrors {
   account?: string | null;
@@ -248,6 +249,7 @@ export default {
         type: ''  //'success' or 'error'
       },
       errors: {} as FormErrors,
+      userStore: useUserStore(),
       loading: false,
       showPassword: false,
       showCaptcha: false,
@@ -404,8 +406,8 @@ export default {
         //登录成功，跳转到首页
         this.message.text = '登录成功！正在跳转...'
         this.message.type = 'success'
-        //存储token
-        localStorage.setItem("local-token",JSON.stringify(response))
+        //存储登录信息
+        this.userStore.saveLoginState(response)
         router.push('/');
         
       }catch (error: any) {
