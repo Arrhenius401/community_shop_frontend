@@ -56,12 +56,19 @@ export const getUserDetail = (userId: number) => {
 };
 
 /**
+ * 获取当前登录用户的完整资料（对应后端 GET /api/v1/users/profile/private，需登录）
+ * @returns 当前登录用户的完整信息
+ */
+export const getUserProfile = () => {
+  return request.get<UserDetail>('/api/v1/users/profile/private');
+};
+/**
  * 更新用户资料（对应后端 PUT /api/v1/users/profile，需登录）
  * @param params 资料更新参数（与后端 UserProfileUpdateDTO 对齐）
  * @returns 更新后的用户详情
  */
 export const updateUserProfile = (params: UserProfileUpdateParams) => {
-  return request.put<UserDetail>('/api/v1/users/profile', params);
+  return request.put<UserDetail>('/api/v1/users/profile/update', params);
 };
 
 /**
