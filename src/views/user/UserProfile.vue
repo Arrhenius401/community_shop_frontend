@@ -17,7 +17,7 @@
       <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
         <div class="flex items-start space-x-6">
           <div class="relative">
-            <img :src="user.avatar" alt="用户头像" class="w-24 h-24 rounded-full">
+            <img :src="user.avatarUrl || '/placeholder.svg?height=96&width=96'" alt="用户头像" class="w-24 h-24 rounded-full">
             <button class="absolute bottom-0 right-0 bg-blue-500 text-white p-1 rounded-full hover:bg-blue-600">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -26,6 +26,7 @@
           </div>
           
           <div class="flex-1">
+
             <div class="flex items-center justify-between mb-2">
               <h2 class="text-2xl font-bold text-gray-900">{{ user.username }}</h2>
               <button class="p-2 text-gray-400 hover:text-gray-600">
@@ -36,7 +37,24 @@
               </button>
             </div>
             
-            <p class="text-gray-600 mb-4">{{ user.bio }}</p>
+            <p class="text-gray-600 mb-4">{{ user.bio || '暂无个人简介' }}</p>
+            
+            <div class="flex items-center space-x-6">
+              <div class="flex items-center space-x-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                <span>{{ user.gender === Gender.MALE ? '男' : user.gender === Gender.FEMALE ? '女' : '保密' }}</span>
+              </div>
+
+              <!-- <div class="flex items-center space-x-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span>{{ user.city || '未设置城市' }}</span>
+              </div> -->
+            </div>
             
             <div class="flex items-center space-x-6 text-sm text-gray-500">
               <div class="flex items-center space-x-1">
@@ -64,6 +82,14 @@
                 <span class="text-sm">信用分不足，需提升信用后可发布商品</span>
               </div>
             </div>
+
+            <div class="flex items-center space-x-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span>注册时间: {{ user.createTime }}</span>
+              </div>
+
           </div>
         </div>
       </div>
@@ -173,24 +199,21 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { checkAdmin, getPostByUserID } from '../../services/api';
+import { getUserDetail, updateUserProfile } from '../../api/user';
+import { UserDetail, UserProfileUpdateParams, Gender } from '../../types/user';
 
 export default {
   name: 'UserProfile',
   data() {
     return {
+      Gender,
       isAdmin: false,
       activePostTab: 'all',
 
       //默认用户信息
-      user: {
-        username: '用户',
-        avatar: '/placeholder.svg?height=96&width=96',
-        bio: '默认用户简介',
-        postCount: 0,
-        creditScore: 100
-      },
+      user: {} as UserDetail,
       postTabs: [
         { key: 'all', label: '全部' },
         { key: 'published', label: '已发布' },
@@ -223,7 +246,7 @@ export default {
   },mounted() {
     this.checkAdmin_profile()
     this.getUserFromToken()
-    this.getMyPost(this.user.userID)
+    this.getMyPost(this.user.userId)
   },
   methods: {
     //前端方法的命名要谨慎
@@ -231,7 +254,7 @@ export default {
     //仅在名称前加入"this."后，方法才指向本文件的checkAdmin()方法
     async checkAdmin_profile(){
       try{
-        const localToken = JSON.parse(window.localStorage.getItem('local-token'))
+        const localToken = JSON.parse(window.localStorage.getItem('local-token') || '{}');
         console.log("profile界面所传输token: ", localToken)
         this.isAdmin = await checkAdmin(localToken)
         console.log("管理身份认证状态: ", this.isAdmin)
@@ -240,19 +263,44 @@ export default {
       }
     },
     async getUserFromToken(){
-      //还原本地token
-      let localToken = JSON.parse(window.localStorage.getItem('local-token'))
-      this.user = localToken.user
+      const localToken = JSON.parse(window.localStorage.getItem('local-token') || '{}');
+      if (localToken.user?.userId) {
+        // 获取完整用户详情
+        this.user = await getUserDetail(localToken.user.userId);
+      }
     },
-    async getMyPost(userID){
-      console.log("userID: ", userID)
+    async getMyPost(userId: number){
+      console.log("userId: ", userId)
       try{
-        this.myPosts = await getPostByUserID(userID)
+        this.myPosts = await getPostByUserID(userId)
       }catch(error){
         console.log("获取本机用户创建帖子的请求失败: ", error)
       }
       
-    }
+    },
+
+    // // 添加资料更新方法
+    // async updateProfile() {
+    //   const updateParams: UserProfileUpdateParams = {
+    //     username: this.user.username,
+    //     avatarUrl: this.user.avatarUrl,
+    //     bio: this.user.bio,
+    //     gender: this.user.gender as Gender,
+    //     interestTags: this.user.interestTags
+    //   };
+      
+    //   try {
+    //     const updatedUser = await updateUserProfile(updateParams);
+    //     this.user = updatedUser;
+    //     this.$emit('showToast', {
+    //       type: 'success',
+    //       title: '更新成功',
+    //       message: '个人资料已更新'
+    //     });
+    //   } catch (error) {
+    //     console.error('资料更新失败', error);
+    //   }
+    // }
   }
 }
 </script>
