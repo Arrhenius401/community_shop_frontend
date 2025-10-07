@@ -98,3 +98,11 @@ export const queryUserList = (params: UserQueryParams) => {
 export const updatePassword = (params: PasswordUpdateParams) => {
   return request.put<boolean>('/api/v1/users/password', params);
 };
+
+/**
+ * 检验当前登录用户是否为管理员
+ * @returns 是否为管理员（true=是）
+ */
+export const checkIsAdmin = () => {
+  return request.get<boolean>('/api/v1/users/is-admin');
+}
