@@ -122,15 +122,15 @@
             
             <div class="p-6">
               <div class="space-y-4">
-                <div v-for="post in myPosts" :key="post.id" class="border border-gray-200 rounded-lg p-4">
+                <div v-for="post in myPosts" :key="post.postId" class="border border-gray-200 rounded-lg p-4">
                   <div class="flex items-start justify-between">
                     <div class="flex-1">
                       <h4 class="font-medium text-gray-900 mb-2">{{ post.title }}</h4>
                       <p class="text-gray-600 text-sm mb-2">{{ post.summary }}</p>
                       <div class="flex items-center space-x-4 text-sm text-gray-500">
-                        <span>{{ post.publishTime }}</span>
-                        <span>{{ post.likes }} 点赞</span>
-                        <span>{{ post.comments }} 评论</span>
+                        <span>{{ post.createTime }}</span>
+                        <span>{{ post.likeCount }} 点赞</span>
+                        <span>{{ post.commentCount }} 评论</span>
                       </div>
                     </div>
                     <div class="flex space-x-2 ml-4">
@@ -200,9 +200,11 @@
 </template>
 
 <script lang="ts">
-import { checkAdmin, getPostByUserID } from '../../services/api';
-import { getUserDetail, updateUserProfile } from '../../api/user';
+import { useUserStore } from '@/stores/user';
+import { getUserProfile, updateUserProfile, checkIsAdmin } from '../../api/user';
+import { queryPostList } from '@/api/post';
 import { UserDetail, UserProfileUpdateParams, Gender } from '../../types/user';
+import { PostQueryParams, PostListItem } from '../../types/post';
 
 export default {
   name: 'UserProfile',
@@ -211,32 +213,14 @@ export default {
       Gender,
       isAdmin: false,
       activePostTab: 'all',
-
-      //默认用户信息
       user: {} as UserDetail,
+      userStore: useUserStore(),
       postTabs: [
         { key: 'all', label: '全部' },
         { key: 'published', label: '已发布' },
         { key: 'draft', label: '草稿' }
       ],
-      myPosts: [
-        {
-          id: 1,
-          title: '分享一个超好用的编程工具',
-          summary: '最近发现了一个非常好用的代码编辑器插件...',
-          publishTime: '2天前',
-          likes: 128,
-          comments: 45
-        },
-        {
-          id: 2,
-          title: 'Vue 3 开发心得分享',
-          summary: '使用Vue 3开发项目的一些经验和技巧...',
-          publishTime: '1周前',
-          likes: 89,
-          comments: 23
-        }
-      ],
+      myPosts: [] as PostListItem[],
       collectCategories: [
         { name: '待阅读', count: 12 },
         { name: '兴趣话题', count: 8 },
@@ -251,28 +235,30 @@ export default {
   methods: {
     //前端方法的命名要谨慎
     //若使用checkAdmin()作为名称，则调用此名称时，方法将指向api.js中的checkAdmin()方法
-    //仅在名称前加入"this."后，方法才指向本文件的checkAdmin()方法
+    //仅在名称前加入"this."后，方法才指向本文件的checkIsAdmin()方法
     async checkAdmin_profile(){
       try{
         const localToken = JSON.parse(window.localStorage.getItem('local-token') || '{}');
         console.log("profile界面所传输token: ", localToken)
-        this.isAdmin = await checkAdmin(localToken)
+        this.isAdmin = await checkIsAdmin()
         console.log("管理身份认证状态: ", this.isAdmin)
       }catch(error){
         console.log("管理身份认证失败")
       }
     },
     async getUserFromToken(){
-      const localToken = JSON.parse(window.localStorage.getItem('local-token') || '{}');
-      if (localToken.user?.userId) {
-        // 获取完整用户详情
-        this.user = await getUserDetail(localToken.user.userId);
-      }
+      this.user = await getUserProfile()
     },
     async getMyPost(userId: number){
       console.log("userId: ", userId)
       try{
-        this.myPosts = await getPostByUserID(userId)
+        const userId = this.userStore.userInfo?.userId || null;
+        const postQuery: PostQueryParams = {
+        pageNum: 1,
+        pageSize: 10,
+        userId: userId || undefined
+        };
+        this.myPosts = (await queryPostList(postQuery)).list
       }catch(error){
         console.log("获取本机用户创建帖子的请求失败: ", error)
       }
