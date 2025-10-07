@@ -105,6 +105,8 @@ export interface PostListItem {
   title: string;
   /** 首图URL：无图时前端需展示默认图片，与后端 coverImage 逻辑一致 */
   coverImage: string;
+  /** 帖子摘要：列表页展示，截取内容前20字（与后端 @Size(max=20) 校验规则一致） */
+  summary: string;
   /** 帖子点赞数：列表页简要统计 */
   likeCount: number;
   /** 帖子跟帖数：列表页简要统计 */
