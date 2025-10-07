@@ -137,8 +137,6 @@ export interface UserProfileUpdateParams {
   interestTags?: string[];
   /** 性别：可选，限定为 Gender 枚举值，与后端 GenderEnum 匹配 */
   gender?: Gender;
-  /** 所在城市：可选，无格式限制，展示用 */
-  city?: string;
 }
 
 /**
@@ -152,6 +150,8 @@ export interface UserDetail {
   username: string;
   /** 头像URL：展示用，与后端 UserDetailDTO.avatarUrl 字段一致 */
   avatarUrl: string;
+  /** 个人简介：列表页展示用，简化版个人简介，与后端 UserDetailDTO.bio 字段一致 */
+  bio: string;
   /** 信用分：初始100分，影响发布权限，与后端 UserDetailDTO.creditScore 一致 */
   creditScore: number;
   /** 发帖数：统计用户发布帖子总量，与后端 UserDetailDTO.postCount 一致 */
@@ -160,6 +160,10 @@ export interface UserDetail {
   interestTags: string[];
   /** 注册时间：ISO格式字符串，关联 user 表 createTime 字段，展示用 */
   createTime: string;
+  /** 最后活跃时间：ISO格式字符串，展示用，与后端 UserDetailDTO.lastActivityTime 字段一致 */
+  activityTime: string;
+  /** 性别：展示用，与后端 UserDetailDTO.gender 字段一致 */
+  gender: Gender;
 }
 
 /**
@@ -241,6 +245,7 @@ export interface UserListItem {
   username: string;
   /** 头像URL：列表页展示用，简化版头像地址 */
   avatarUrl: string;
+
   /** 信用分：列表页展示用户可信度，与 UserDetailDTO.creditScore 一致 */
   creditScore: number;
   /** 发帖数：列表页展示用户活跃度，与 UserDetailDTO.postCount 一致 */
