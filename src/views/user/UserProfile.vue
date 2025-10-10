@@ -230,7 +230,7 @@ export default {
   },mounted() {
     this.checkAdmin_profile()
     this.getUserFromToken()
-    this.getMyPost(this.user.userId)
+    this.getMyPost()
   },
   methods: {
     //前端方法的命名要谨慎
@@ -249,8 +249,7 @@ export default {
     async getUserFromToken(){
       this.user = await getUserProfile()
     },
-    async getMyPost(userId: number){
-      console.log("userId: ", userId)
+    async getMyPost(){
       try{
         const userId = this.userStore.userInfo?.userId || null;
         const postQuery: PostQueryParams = {
