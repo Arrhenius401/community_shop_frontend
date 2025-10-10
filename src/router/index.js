@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 // 引入user相关的界面组件
-import UserHome from '../views/user/UserHome.vue';
+import UserHome from '../views/Home.vue';
 import UserLogin from '../views/user/UserLogin.vue';
 import UserProfile from '../views/user/UserProfile.vue';
 import UserChat from '../views/user/UserChat.vue';

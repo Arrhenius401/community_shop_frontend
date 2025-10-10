@@ -79,16 +79,16 @@
           <div class="space-y-4">
             <div 
               v-for="post in posts" 
-              :key="post.id"
+              :key="post.postId"
               class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
-              @click="$router.push(`/post/${post.postID}`)"
+              @click="$router.push(`/post/${post.postId}`)"
             >
               <div class="flex items-start space-x-4">
-                <img :src="post.avatar" alt="用户头像" class="w-10 h-10 rounded-full">
+                <img :src="post.publisher.avatarUrl" alt="用户头像" class="w-10 h-10 rounded-full">
                 <div class="flex-1">
                   <div class="flex items-center space-x-2 mb-2">
-                    <span class="font-medium text-gray-900">{{ post.username }}</span>
-                    <span class="text-gray-500 text-sm">{{ post.time }}</span>
+                    <span class="font-medium text-gray-900">{{ post.publisher.username }}</span>
+                    <span class="text-gray-500 text-sm">{{ post.createTime }}</span>
                     <span v-if="post.isHot" class="px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full">热门</span>
                   </div>
                   <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ post.title }}</h3>
@@ -141,15 +141,17 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 //在 Vue 3 中，this.$set 已被移除，主要原因是组合式 API 中的响应式系统（如 ref 和 reactive）不再需要它
 //ref和reactive均是用于创建一个响应式对象的函数，其值被包裹在一个带有.value 属性的对象中
 //当这个值被修改时，任何依赖它的 DOM 或计算属性都会自动更新
 import { reactive } from 'vue'
-import { getHomePost } from '../../services/api'
+import { queryPostList } from '@/api/post';
+import { PostQueryParams, PostListItem } from '../types/post';
+
 
 export default {
-  name: 'UserHome',
+  name: 'Home',
   data() {
     return {
       searchQuery: '',
@@ -161,7 +163,7 @@ export default {
         { key: 'featured', label: '精华' }
       ],
       popularTags: ['好物分享', '技术讨论', '生活日常'],
-      posts: reactive([]),
+      posts: reactive([]) as PostListItem[],
       hotTopics: [
         { name: '前端开发', count: '1.2k' },
         { name: '美食推荐', count: '856' },
@@ -184,16 +186,19 @@ export default {
     //处理数组时，除非你确实需要索引，否则应优先使用 for...of 或 map
     async fetchPosts(){
       try{
-        this.posts = await getHomePost()
+        const postQuery: PostQueryParams = {
+        pageNum: 1,
+        pageSize: 50,
+        };
+        this.posts = (await queryPostList(postQuery)).list;
         this.posts = this.posts.map(post => ({
           ...post,
-          summary: post.content.substring(0, 10) + '...',
-          time: this.$formatTime(new Date(post.createTime)),
+          summary: post.summary + '...',
+          createTime: this.$formatTime(new Date(post.createTime)),
           avatar: null
         }));
       }catch(error){
         console.log("主页获取帖子出错: ", error)
-        console.log(this.$formatTime);
       } 
     },
     handleScroll() {
