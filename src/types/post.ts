@@ -92,6 +92,8 @@ export interface PostListItemPublisher {
   userId: number;
   /** 发布者用户名：列表页展示，无需脱敏（后端已处理） */
   username: string;
+  /** 发布者头像URL：用于列表页展示头像 */
+  avatarUrl: string;
 }
 
 /**
@@ -111,6 +113,12 @@ export interface PostListItem {
   likeCount: number;
   /** 帖子跟帖数：列表页简要统计 */
   commentCount: number;
+  /** 是否为热门帖：运营标记，用于列表页特殊标识 */
+  isHot: boolean;
+  /** 是否为置顶帖：运营标记，用于列表页特殊标识 */
+  isEssence: boolean;
+  /** 当前登录用户是否已点赞：用于列表页点赞状态切换 */
+  isLiked: boolean;
   /** 发布时间：列表页格式化展示（如 "2小时前"） */
   createTime: string;
   /** 发布者极简信息：仅包含ID和用户名，适配列表页紧凑展示 */
