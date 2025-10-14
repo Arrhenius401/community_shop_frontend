@@ -221,9 +221,9 @@
 
 
 <script lang="ts">
-import { loginByPassword } from '../../api/user';
-import {LoginParams, LoginResult, LoginType } from '../../types/user';
-import router from '../../router';
+import { loginByPassword } from '@/api/user';
+import {LoginParams, LoginResult, LoginType } from '@/types/user';
+import router from '@/router';
 import { BusinessError } from '@/utils/error';
 import { useUserStore } from '@/stores/user';
 
