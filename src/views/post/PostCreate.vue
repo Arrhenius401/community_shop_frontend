@@ -146,7 +146,7 @@
                 
                 <button 
                   type="button"
-                  @click="$refs.imageInput.click()"
+                  @click="triggerImageUpload"
                   class="p-2 hover:bg-gray-200 rounded"
                   title="插入图片"
                 >
@@ -200,7 +200,7 @@
               <button 
                 v-if="post.images.length < 9"
                 type="button"
-                @click="$refs.imageInput.click()"
+                @click="triggerImageUpload"
                 class="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-colors"
               >
                 <div class="text-center">
@@ -269,7 +269,11 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { publishPost } from '@/api/post'
+import { PostPublishParams } from '@/types/post'
+
+
 export default {
   name: 'PostCreate',
   data() {
@@ -277,8 +281,8 @@ export default {
       post: {
         title: '',
         content: '',
-        tags: [],
-        images: [],
+        tags: [] as string[],
+        images: [] as Array<{ file: File; url: string; name: string }>,
         allowComments: true,
         isAnonymous: false,
         visibility: 'public'
@@ -290,8 +294,13 @@ export default {
     }
   },
   computed: {
-    canPublish() {
-      return this.post.title.trim() && this.post.content.trim()
+    canPublish(): boolean {
+      return Boolean(
+        this.post.title.trim() &&
+        this.post.content.trim() &&
+        this.post.title.length <= 50 &&
+        this.post.content.length <= 2000
+      )
     }
   },
   methods: {
@@ -302,23 +311,23 @@ export default {
         this.newTag = ''
       }
     },
-    removeTag(tag) {
+    removeTag(tag: string) {
       this.post.tags = this.post.tags.filter(t => t !== tag)
     },
-    addRecommendedTag(tag) {
+    addRecommendedTag(tag: string) {
       if (!this.post.tags.includes(tag) && this.post.tags.length < 5) {
         this.post.tags.push(tag)
       }
     },
-    formatText(command) {
-      document.execCommand(command, false, null)
-      this.$refs.contentEditor.focus()
+    formatText(command: string) {
+      document.execCommand(command, false, "")
+      ;(this.$refs.contentEditor as HTMLTextAreaElement).focus()
     },
     insertEmoji() {
       this.showEmojiPicker = true
     },
-    insertEmojiAtCursor(emoji) {
-      const textarea = this.$refs.contentEditor
+    insertEmojiAtCursor(emoji: string) {
+      const textarea = this.$refs.contentEditor as HTMLTextAreaElement
       const start = textarea.selectionStart
       const end = textarea.selectionEnd
       const text = this.post.content
@@ -332,28 +341,37 @@ export default {
       
       this.showEmojiPicker = false
     },
-    handleImageUpload(event) {
-      const files = Array.from(event.target.files)
+    handleImageUpload(event: Event) {
+      const files = Array.from((event.target as HTMLInputElement).files || [])
       const remainingSlots = 9 - this.post.images.length
       
       files.slice(0, remainingSlots).forEach(file => {
         if (file.type.startsWith('image/')) {
           const reader = new FileReader()
           reader.onload = (e) => {
-            this.post.images.push({
-              file: file,
-              url: e.target.result,
-              name: file.name
-            })
+            if (e.target?.result) {
+              this.post.images.push({
+                file: file,
+                url: e.target.result as string,
+                name: file.name
+              })
+            }
           }
           reader.readAsDataURL(file)
         }
       })
       
       // 清空input
-      event.target.value = ''
+      if (event.target instanceof HTMLInputElement) {
+        event.target.value = ''
+      }
+    },triggerImageUpload() {
+      const input = this.$refs.imageInput as HTMLInputElement
+      if (input) {
+        input.click()
+      }
     },
-    removeImage(index) {
+    removeImage(index: number) {
       this.post.images.splice(index, 1)
     },
     saveDraft() {
@@ -367,21 +385,29 @@ export default {
       // 显示保存成功提示
       console.log('草稿已保存')
     },
-    publishPost() {
+    async publishPost() {
       if (!this.canPublish) return
       
-      const postData = {
-        ...this.post,
-        publishedAt: new Date().toISOString()
+      const postData: PostPublishParams = {
+        title: this.post.title,
+        content: this.post.content,
       }
       
-      console.log('发布帖子:', postData)
-      
-      // 清除草稿
-      localStorage.removeItem('postDraft')
-      
-      // 跳转到帖子详情页
-      this.$router.push('/post/1')
+      try {
+        // 调用API发布帖子
+        const response = await publishPost(postData)
+        console.log('发布成功:', response)
+        
+        // 清除草稿
+        localStorage.removeItem('postDraft')
+        
+        // 跳转到新发布的帖子详情页
+        this.$router.push(`/post/${response.postId}`)
+      } catch (error) {
+        console.error('发布失败:', error)
+        // 显示错误提示
+        alert('发布失败，请稍后重试')
+      }
     },
     loadDraft() {
       const draft = localStorage.getItem('postDraft')
