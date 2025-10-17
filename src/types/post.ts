@@ -9,25 +9,43 @@ import { PageParam, PageResult, SortDirection, BaseUserInfo } from "./common";
  * 帖子状态枚举（对应后端 PostStatusEnum）
  * 适配帖子列表查询、状态更新等场景的状态筛选需求
  */
-export type PostStatus = "NORMAL" | "OFF_SHELF" | "DELETED";
+export enum PostStatus {
+  DRAFT = "DRAFT",
+  PENDING = "PENDING",
+  REJECTED = "REJECTED",
+  NORMAL = "NORMAL",
+  isTop = "isTop",
+  HOT = "HOT",
+  ESSENCE = "ESSENCE",
+  DELETED = "DELETED",
+}
 
 /**
  * 帖子排序字段枚举（对应后端 PostSortFieldEnum）
  * 定义帖子列表支持的排序维度，与后端筛选逻辑保持一致
  */
-export type PostSortField = "CREATE_TIME" | "LIKE_COUNT" | "COMMENT_COUNT";
+export enum PostSortField {
+  CREATE_TIME = "CREATE_TIME",
+  LIKE_COUNT = "LIKE_COUNT",
+  COMMENT_COUNT = "COMMENT_COUNT",
+}
 
 /**
  * 跟帖状态枚举（对应后端 PostFollowStatusEnum）
  * 适配跟帖列表查询、状态更新场景，区分正常/隐藏跟帖
  */
-export type PostFollowStatus = "NORMAL" | "HIDDEN";
+export enum PostFollowStatus {
+  NORMAL = "NORMAL",
+  HIDDEN = "HIDDEN",
+}
 
 /**
  * 跟帖排序字段枚举（对应后端 ProductSortFieldEnum，后端文档中跟帖查询复用该枚举）
  * 目前仅支持按发布时间排序，与后端查询逻辑对齐
  */
-export type PostFollowSortField = "CREATE_TIME";
+export enum PostFollowSortField {
+  CREATE_TIME = "CREATE_TIME",
+}
 
 // ------------------------------ 帖子核心 DTO ------------------------------
 /**
@@ -79,6 +97,8 @@ export interface PostDetail {
   isLiked: boolean;
   /** 帖子发布时间：ISO格式字符串（如 "2024-05-20T14:30:00"），前端可格式化展示 */
   createTime: string;
+  /** 帖子状态：展示当前帖子状态，如正常、待审核、已拒绝等 */
+  status: PostStatus;
   /** 发布者信息：脱敏后的用户详情，继承通用 BaseUserInfo 补充信用分 */
   publisher: PostPublisher;
 }
