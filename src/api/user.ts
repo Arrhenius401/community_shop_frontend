@@ -94,8 +94,17 @@ export const getThirdPartyBindList = () => {
  * @returns 分页用户列表
  */
 export const queryUserList = (params: UserQueryParams) => {
-  return request.get<UserListPageResult>('/api/v1/users/list', { params });
+  return request.get<UserListPageResult>('/api/v1/users/query/list', { params });
 };
+
+/**
+ * 统计符合条件的用户数量（对应后端 GET /api/v1/users/query/count，无需登录）
+ * @param params 用户查询参数（与后端 UserQueryDTO 对齐）
+ * @returns 符合条件的用户数量
+ */
+export const queryUserCount = (params: UserQueryParams) => {
+  return request.get<number>('/api/v1/users/query/count', { params });
+}
 
 /**
  * 修改密码（对应后端 PUT /api/v1/users/password，需登录）
