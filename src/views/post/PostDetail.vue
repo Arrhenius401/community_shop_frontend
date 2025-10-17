@@ -28,14 +28,21 @@
             <!-- 帖子内容 -->
             <div class="p-6 border-b">
               <div class="flex items-center space-x-3 mb-4">
-                <img :src="post.author.avatar" alt="作者头像" class="w-12 h-12 rounded-full">
+                <img :src="post.publisher.avatarUrl || '/placeholder.svg?height=32&width=32'" alt="作者头像" class="w-12 h-12 rounded-full">
                 <div>
-                  <h3 class="font-semibold text-gray-900">{{ post.author.name }}</h3>
-                  <p class="text-sm text-gray-500">{{ post.publishTime }}</p>
+                  <h3 class="font-semibold text-gray-900">{{ post.publisher.username }}</h3>
+                  <p class="text-sm text-gray-500">{{ post.createTime }}</p>
                 </div>
               </div>
               
               <h1 class="text-2xl font-bold text-gray-900 mb-4">{{ post.title }}</h1>
+              
+              <!-- 增加帖子标识 -->
+              <div class="flex gap-2 mb-4">
+                <span v-if="post.isHot" class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">热门</span>
+                <span v-if="post.isEssence" class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">精华</span>
+                <span v-if="post.isTop" class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">置顶</span>
+              </div>
               
               <div class="prose max-w-none mb-6">
                 <p v-for="(paragraph, index) in post.content" :key="index" class="mb-4 text-gray-700 leading-relaxed">
@@ -44,7 +51,7 @@
               </div>
 
               <!-- 图片展示 -->
-              <div v-if="post.images.length > 0" class="grid grid-cols-3 gap-4 mb-6">
+              <!-- <div v-if="post.images.length > 0" class="grid grid-cols-3 gap-4 mb-6">
                 <img 
                   v-for="(image, index) in post.images" 
                   :key="index"
@@ -53,7 +60,7 @@
                   class="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-90"
                   @click="openImageModal(image)"
                 >
-              </div>
+              </div> -->
             </div>
 
             <!-- 互动区 -->
@@ -69,10 +76,11 @@
                   <svg class="w-5 h-5" :fill="post.isLiked ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                   </svg>
-                  <span>{{ post.isLiked ? '已点赞' : '点赞' }} ({{ post.likes }})</span>
+                  <span>{{ post.isLiked ? '已点赞' : '点赞' }} ({{ post.likeCount }})</span>
                 </button>
-                
-                <button 
+
+                <!-- 收藏按钮 -->
+                <!-- <button 
                   :class="[
                     'flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors',
                     post.isCollected ? 'bg-yellow-50 text-yellow-600' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
@@ -83,7 +91,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                   </svg>
                   <span>{{ post.isCollected ? '已收藏' : '收藏' }}</span>
-                </button>
+                </button> -->
               </div>
             </div>
 
@@ -131,9 +139,9 @@
         <aside class="w-80">
           <div class="bg-white rounded-lg shadow-sm p-6 sticky top-24">
             <div class="text-center mb-4">
-              <img :src="post.author.avatar" alt="作者头像" class="w-16 h-16 rounded-full mx-auto mb-3">
-              <h3 class="font-semibold text-gray-900">{{ post.author.name }}</h3>
-              <p class="text-sm text-gray-500 mb-2">信用分：{{ post.author.creditScore }}</p>
+              <img :src="post.publisher.avatarUrl || '/placeholder.svg?height=64&width=64'" alt="作者头像" class="w-16 h-16 rounded-full mx-auto mb-3">
+              <h3 class="font-semibold text-gray-900">{{ post.publisher.username }}</h3>
+              <p class="text-sm text-gray-500 mb-2">信用分：{{ post.publisher.creditScore }}</p>
               <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium">
                 关注
               </button>
@@ -154,82 +162,80 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { getPostDetail, likePost, publishPostFollow } from '@/api/post'
+import type { PostDetail, PostLikeParams, PostFollowPublishParams } from '@/types/post'
+
 export default {
   name: 'PostDetail',
   data() {
     return {
       newComment: '',
-      post: {
-        id: 1,
-        title: '分享一个超好用的编程工具',
-        content: [
-          '最近发现了一个非常好用的代码编辑器插件，大大提高了我的开发效率。这个插件不仅界面美观，功能也很强大。',
-          '主要特点包括：智能代码补全、语法高亮、多主题支持、插件生态丰富等。特别是它的智能补全功能，能够根据上下文提供精准的代码建议。',
-          '推荐给所有的开发者朋友们，相信你们也会喜欢的！'
-        ],
-        images: [
-          '/placeholder.svg?height=200&width=300',
-          '/placeholder.svg?height=200&width=300',
-          '/placeholder.svg?height=200&width=300'
-        ],
-        author: {
-          name: '张三',
-          avatar: '/placeholder.svg?height=64&width=64',
-          creditScore: 95
-        },
-        publishTime: '2小时前',
-        likes: 128,
-        isLiked: false,
-        isCollected: false
-      },
-      comments: [
-        {
-          id: 1,
-          author: {
-            name: '李四',
-            avatar: '/placeholder.svg?height=32&width=32'
-          },
-          content: '确实很不错的工具，我也在用！',
-          time: '1小时前'
-        },
-        {
-          id: 2,
-          author: {
-            name: '王五',
-            avatar: '/placeholder.svg?height=32&width=32'
-          },
-          content: '感谢分享，正好需要这样的工具',
-          time: '30分钟前'
-        }
-      ]
+      post:  {} as PostDetail,
+      comments: [] as any[],
+    }
+  },
+   created() {
+    // 获取路由参数中的帖子ID
+    const postId = Number(this.$route.params.id)
+    if (postId) {
+      this.loadPostDetail(postId)
+      this.loadComments(postId)
     }
   },
   methods: {
-    toggleLike() {
-      this.post.isLiked = !this.post.isLiked
-      this.post.likes += this.post.isLiked ? 1 : -1
+    // 收藏帖子功能
+    // toggleCollect() {
+    //   this.post.isCollected = !this.post.isCollected
+    // },
+    async loadPostDetail(postId: number) {
+      try {
+        const response = await getPostDetail(postId)
+        this.post = response
+      } catch (error) {
+        console.error('加载帖子详情失败:', error)
+      }
     },
-    toggleCollect() {
-      this.post.isCollected = !this.post.isCollected
+    
+    async loadComments(postId: number) {
+      // 实际项目中应调用queryPostFollowList API
+      console.log('加载评论:', postId)
+      // 模拟数据保持不变
+    },
+    async toggleLike() {
+      if (!this.post) return
+      
+      const params: PostLikeParams = {
+        postId: this.post.postId,
+        userId: 1,
+        isLike: !this.post.isLiked
+      }
+      
+      try {
+        await likePost(this.post.postId, params)
+        this.post.isLiked = !this.post.isLiked
+        this.post.likeCount += this.post.isLiked ? 1 : -1
+      } catch (error) {
+        console.error('点赞操作失败:', error)
+      }
     },
     submitComment() {
       if (!this.newComment.trim()) return
       
-      const comment = {
-        id: Date.now(),
-        author: {
-          name: '当前用户',
-          avatar: '/placeholder.svg?height=32&width=32'
-        },
+      const comment : PostFollowPublishParams = {
+        postId: this.post.postId,
         content: this.newComment,
-        time: '刚刚'
       }
       
-      this.comments.unshift(comment)
-      this.newComment = ''
+      try {
+        publishPostFollow(this.post.postId, comment)
+        this.comments.unshift(comment)
+        this.newComment = ''
+      } catch (error) {
+        console.error('发表评论失败:', error)
+      }
     },
-    openImageModal(image) {
+    openImageModal(image: string) {
       // 实现图片预览功能
       console.log('打开图片预览:', image)
     }
