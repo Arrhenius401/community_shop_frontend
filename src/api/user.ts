@@ -120,5 +120,13 @@ export const updatePassword = (params: PasswordUpdateParams) => {
  * @returns 是否为管理员（true=是）
  */
 export const checkIsAdmin = () => {
-  return request.get<boolean>('/api/v1/users/is-admin');
+  return request.get<boolean>('/api/v1/users/check/admin');
+};
+
+/**
+ * 检验当前登录用户是否已登录
+ * @returns 是否已登录（true=是）
+ */
+export const checkIsLogin = () => {
+  return request.get<boolean>('/api/v1/users/check/login');
 }
