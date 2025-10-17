@@ -27,8 +27,12 @@ import OrderPayment from '../views/Order/OrderPayment.vue';
 
 // 引入管理员相关的界面组件
 import AdminPanel from '../views/admin/AdminPanel.vue';
+import AdminDashboard from '@/views/admin/AdminDashboard.vue';
+import AdminDashboard from '@/views/admin/AdminDashboard.vue';
+import ProductManage from '@/views/admin/ProductManagement.vue';
+import UserManage from '@/views/admin/UserManagement.vue';
 
-import { checkAdmin, checkToken } from '../services/api';
+import { checkIsAdmin, checkIsLogin } from '@/api/user';
 
 const routes = [
   
@@ -148,13 +152,40 @@ const routes = [
       title: '支付 - Graygoo的web'
     }
   },{
-    path: '/adminPanel',
-    name: 'AdminPanel',
-    component: AdminPanel,
+    path: '/adminDashboard',
+    name: 'AdminDashboard',
+    component: AdminDashboard,
     meta: { 
       requiresAuth: true,
       requiresAdmin: true,
       title: '控制台 - Graygoo的web'
+    }
+  },{
+    path: '/productManagement',
+    name: 'ProductManagement',
+    component: ProductManage,
+    meta: { 
+      requiresAuth: true,
+      requiresAdmin: true,
+      title: '商品管理 - Graygoo的web'
+    }
+  },{
+    path: '/userManagement',
+    name: 'UserManagement',
+    component: UserManage,
+    meta: { 
+      requiresAuth: true,
+      requiresAdmin: true,
+      title: '用户管理 - Graygoo的web'
+    }
+  },{
+    path: '/postManagement',
+    name: 'PostManagement',
+    component: AdminPanel,
+    meta: { 
+      requiresAuth: true,
+      requiresAdmin: true,
+      title: '帖子管理 - Graygoo的web'
     }
   }
 ];
@@ -178,7 +209,7 @@ router.beforeEach(async (to, from, next) => {
   if(!localToken){
     isAuthenticated = false
   }else{
-    isAuthenticated = await checkToken(localToken)
+    isAuthenticated = await checkIsLogin()
   }
 
   if(isAuthenticated != true && isAuthenticated != false){
@@ -206,7 +237,7 @@ router.beforeEach(async (to, from, next) => {
 
   //检查需要管理员权限的界面
   if(to.meta.requiresAdmin){
-    let isAdmin = await checkAdmin(localToken)
+    let isAdmin = await checkIsAdmin()
     console.log("管理身份认证状态: ", isAdmin)
     if(!isAdmin){
       return
