@@ -75,8 +75,17 @@ export const setPostEssenceOrTop = (postId: number, params: PostEssenceTopParams
  * @returns 分页帖子列表
  */
 export const queryPostList = (params: PostQueryParams) => {
-  return request.get<PostListPageResult>('/api/v1/posts/list', { params });
+  return request.get<PostListPageResult>('/api/v1/posts/query/list', { params });
 };
+
+/**
+ * 统计符合条件的帖子数量（对应后端 GET /api/v1/posts/query/count，无需登录）
+ * @param params 帖子查询参数（与后端 PostQueryDTO 对齐）
+ * @returns 符合条件的帖子数量
+ */
+export const queryPostCount = (params: PostQueryParams) => {
+  return request.get<number>('/api/v1/posts/query/count', { params });
+}
 
 /**
  * 发布跟帖（对应后端 POST /api/v1/posts/{postId}/follows，需登录）
