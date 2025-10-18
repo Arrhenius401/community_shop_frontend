@@ -179,7 +179,7 @@
 
 <script lang="ts">
 import { PostStatus } from '@/types/post';
-import { queryUserList, queryUserCount } from '@/api/user'
+import { queryUserCount } from '@/api/user'
 import { queryPostList, queryPostCount } from '@/api/post'
 export default {
   data() {
