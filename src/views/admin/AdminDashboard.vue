@@ -151,7 +151,7 @@
       </div>
 
       <!-- 最近活动 -->
-      <div class="bg-white rounded-lg border border-gray-200">
+      <!-- <div class="bg-white rounded-lg border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-200">
           <h3 class="text-base font-medium text-gray-900">最近活动</h3>
         </div>
@@ -171,13 +171,16 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
     </main>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { PostStatus } from '@/types/post';
+import { queryUserList, queryUserCount } from '@/api/user'
+import { queryPostList, queryPostCount } from '@/api/post'
 export default {
   data() {
     return {
@@ -187,35 +190,35 @@ export default {
         totalProducts: 0,
         pending: 0
       },
-      recentActivities: [
-        {
-          id: 1,
-          title: '新帖子发布',
-          description: '用户 张三 发布了新帖子 "二手iPhone转让"',
-          time: '5分钟前',
-          bgColor: 'bg-primary-50',
-          iconColor: 'text-primary',
-          iconPath: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
-        },
-        {
-          id: 2,
-          title: '新用户注册',
-          description: '用户 user_12345 完成注册',
-          time: '10分钟前',
-          bgColor: 'bg-success-50',
-          iconColor: 'text-success',
-          iconPath: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z'
-        },
-        {
-          id: 3,
-          title: '举报通知',
-          description: '帖子 #1234 被举报为不当内容',
-          time: '15分钟前',
-          bgColor: 'bg-danger-50',
-          iconColor: 'text-danger',
-          iconPath: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'
-        }
-      ]
+      // recentActivities: [
+      //   {
+      //     id: 1,
+      //     title: '新帖子发布',
+      //     description: '用户 张三 发布了新帖子 "二手iPhone转让"',
+      //     time: '5分钟前',
+      //     bgColor: 'bg-primary-50',
+      //     iconColor: 'text-primary',
+      //     iconPath: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+      //   },
+      //   {
+      //     id: 2,
+      //     title: '新用户注册',
+      //     description: '用户 user_12345 完成注册',
+      //     time: '10分钟前',
+      //     bgColor: 'bg-success-50',
+      //     iconColor: 'text-success',
+      //     iconPath: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z'
+      //   },
+      //   {
+      //     id: 3,
+      //     title: '举报通知',
+      //     description: '帖子 #1234 被举报为不当内容',
+      //     time: '15分钟前',
+      //     bgColor: 'bg-danger-50',
+      //     iconColor: 'text-danger',
+      //     iconPath: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'
+      //   }
+      // ]
     }
   },
   methods: {
