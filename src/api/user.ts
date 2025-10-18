@@ -16,7 +16,8 @@ import type {
   ThirdPartyBindingList,
   ThirdPartyLoginParams,
   UserQueryParams,
-  UserListPageResult
+  UserListPageResult,
+  UserStatusUpdateParams
 } from '@/types/user';
 
 /**
@@ -88,6 +89,9 @@ export const getThirdPartyBindList = () => {
   return request.get<ThirdPartyBindingList>('/api/v1/users/third-party/list');
 };
 
+export const changeUserStatus = (params: UserStatusUpdateParams) => {
+  return request.put<boolean>(`/api/v1/users/change/status`, params);
+}
 /**
  * 管理员查询用户列表（对应后端 GET /api/v1/users/list，需管理员权限）
  * @param params 用户查询参数（与后端 UserQueryDTO 对齐，含分页）
