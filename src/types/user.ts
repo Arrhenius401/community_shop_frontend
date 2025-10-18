@@ -6,6 +6,22 @@
 import { PageParam, PageResult, SortDirection } from "./common";
 
 /**
+ * 用户角色枚举（对应后端 UserRoleEnum）
+ * 定义系统用户角色，与后端用户权限校验逻辑一致
+ */
+export enum UserRole {
+  USER = "USER",
+  ADMIN = "ADMIN",
+}
+
+export enum UserStatus {
+  NORMAL = "NORMAL",
+  BANNED = "BANNED",
+  INACTIVE = "INACTIVE",
+  DELETED = "DELETED",
+}
+
+/**
  * 登录类型枚举（对应后端 LoginTypeEnum）
  * 定义支持的登录方式，与后端登录接口校验规则一致
  */
@@ -148,6 +164,14 @@ export interface UserDetail {
   userId: number;
   /** 用户名：展示用，与后端 UserDetailDTO.username 字段一致 */
   username: string;
+  /** 手机号：展示用，脱敏处理（如后端未脱敏，前端可自行处理），与后端 UserDetailDTO.phoneNumber 字段一致 */
+  phoneNumber?: string;
+  /** 邮箱：展示用，脱敏处理（如后端未脱敏，前端可自行处理），与后端 UserDetailDTO.email 字段一致 */
+  email?: string;
+  /** 用户角色：展示用，与后端 UserDetailDTO.role 字段一致 */
+  role: UserRole;
+  /** 用户状态：展示用，与后端 UserDetailDTO.status 字段一致 */
+  status: UserStatus;
   /** 头像URL：展示用，与后端 UserDetailDTO.avatarUrl 字段一致 */
   avatarUrl: string;
   /** 个人简介：列表页展示用，简化版个人简介，与后端 UserDetailDTO.bio 字段一致 */
@@ -222,6 +246,10 @@ export interface ThirdPartyLoginParams {
  * 继承通用 PageParam 获得分页能力，补充筛选与排序参数，与后端 queryUserList 接口匹配
  */
 export interface UserQueryParams extends PageParam {
+  /** 状态筛选：可选，匹配后端 selectByStatus 状态筛选，筛选指定状态的用户 */
+  status?: UserStatus;
+  /** 角色筛选：可选，匹配后端 selectByRole 角色筛选，筛选指定角色的用户 */
+  role?: UserRole;
   /** 兴趣标签筛选：可选，匹配后端 selectByInterestTags 接口，筛选含指定标签的用户 */
   interestTags?: string[];
   /** 筛选字段：可选，指定筛选维度（如 "creditScore" 信用分、"postCount" 发帖数） */
@@ -245,13 +273,20 @@ export interface UserListItem {
   username: string;
   /** 头像URL：列表页展示用，简化版头像地址 */
   avatarUrl: string;
-
+  /** 手机号：展示用，脱敏处理（如后端未脱敏，前端可自行处理），与后端 UserDetailDTO.phoneNumber 字段一致 */
+  phoneNumber?: string;
+  /** 邮箱：展示用，脱敏处理（如后端未脱敏，前端可自行处理），与后端 UserDetailDTO.email 字段一致 */
+  email?: string;
   /** 信用分：列表页展示用户可信度，与 UserDetailDTO.creditScore 一致 */
   creditScore: number;
   /** 发帖数：列表页展示用户活跃度，与 UserDetailDTO.postCount 一致 */
   postCount: number;
   /** 注册时间：列表页格式化展示（如 "3个月前"），与 UserDetailDTO.createTime 一致 */
   createTime: string;
+  /** 用户状态：列表页展示用户状态，与 UserDetailDTO.status 一致 */
+  status: UserStatus;
+  /** 用户角色：列表页展示用户角色，与 UserDetailDTO.role 一致 */
+  role: UserRole;
 }
 
 /**
@@ -259,3 +294,9 @@ export interface UserListItem {
  * 复用通用 PageResult 泛型，明确分页数据结构，前端用户列表组件可直接接收渲染
  */
 export type UserListPageResult = PageResult<UserListItem>;
+
+// ------------------------------ 用户管理 DTO ------------------------------
+export interface UserStatusUpdateParams { 
+userId: number; 
+status: UserStatus; 
+}

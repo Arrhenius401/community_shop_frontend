@@ -59,12 +59,6 @@ export enum SortDirection {
 }
 
 /**
- * 通用状态枚举基础类型（适配后端各模块状态枚举的共性）
- * 各业务模块可基于此扩展具体状态，如商品状态、帖子状态、消息状态等
- */
-export type BaseStatus = "NORMAL" | "HIDDEN" | "OFF_SALE" | "DELETED";
-
-/**
  * 通用用户脱敏信息类型（适配后端各模块中发布者、发送者的共性信息）
  * 如帖子发布者（PublisherDTO）、消息发送者（SenderDTO）等可复用此类型
  */
