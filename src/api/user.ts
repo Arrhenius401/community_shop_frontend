@@ -89,8 +89,8 @@ export const getThirdPartyBindList = () => {
   return request.get<ThirdPartyBindingList>('/api/v1/users/third-party/list');
 };
 
-export const changeUserStatus = (params: UserStatusUpdateParams) => {
-  return request.put<boolean>(`/api/v1/users/change/status`, params);
+export const updateUserStatus = (params: UserStatusUpdateParams) => {
+  return request.put<boolean>(`/api/v1/users/update/status`, params);
 }
 /**
  * 管理员查询用户列表（对应后端 GET /api/v1/users/list，需管理员权限）

@@ -230,7 +230,7 @@
 </template>
 
 <script lang="ts">
-import { queryUserList, changeUserStatus } from '@/api/user';
+import { queryUserList, updateUserStatus } from '@/api/user';
 import { UserRole, UserStatus, UserQueryParams, UserListItem } from '@/types/user';
 
 export default {
@@ -324,7 +324,7 @@ export default {
       }
 
       try {
-        await changeUserStatus(parqams)
+        await updateUserStatus(parqams)
         await this.fetchUsers()
         alert(`用户 ${user.username} 已${user.status === UserStatus.NORMAL ? '解除封禁' : '封禁'}`)
       } catch (error) {
