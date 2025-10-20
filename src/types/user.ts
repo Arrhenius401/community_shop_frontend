@@ -6,7 +6,7 @@
 import { PageParam, PageResult, SortDirection } from "./common";
 
 /**
- * 用户角色枚举（对应后端 UserRoleEnum）
+ * 用户角色枚举码（对应后端 UserRoleEnum）
  * 定义系统用户角色，与后端用户权限校验逻辑一致
  */
 export enum UserRole {
@@ -14,6 +14,10 @@ export enum UserRole {
   ADMIN = "ADMIN",
 }
 
+/**
+ * 用户状态枚举码（对应后端 UserStatusEnum）
+ * 封装用户状态码，与后端用户状态码一致
+ */
 export enum UserStatus {
   NORMAL = "NORMAL",
   BANNED = "BANNED",
