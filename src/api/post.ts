@@ -126,5 +126,14 @@ export const queryPostFollowList = (postId: number, params: PostFollowQueryParam
  * @returns 操作结果（true=成功）
  */
 export const updatePostFollowStatus = (postId: number, followId: number, params: PostFollowStatusUpdateParams) => {
-  return request.patch<boolean>(`/api/v1/posts/${postId}/follows/${followId}/status`, params);
+  return request.post<boolean>(`/api/v1/posts/${postId}/follows/update/status`, params);
+};
+
+/**
+ * 管理员更新帖子状态（对应后端 POST /api/v1/posts/update/status，需管理员权限）
+ * @param params 帖子状态参数（与后端 PostStatusUpdateDTO 对齐）
+ * @returns 操作结果（true=成功）
+ */
+export const updatePostStatus = (params: PostStatusUpdateParams) => {
+  return request.post<boolean>(`/api/v1/posts/update/status`, params);
 };
