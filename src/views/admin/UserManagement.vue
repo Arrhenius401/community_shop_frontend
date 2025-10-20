@@ -127,7 +127,7 @@
                 <td class="px-4 py-3 whitespace-nowrap">
                   <span 
                     :class="user.status === UserStatus.NORMAL ? 'bg-green-50 text-green-700' : 
-                            user.status.includes('BANNED') ? 'bg-red-50 text-red-700' : 
+                            user.status === UserStatus.BANNED ? 'bg-red-50 text-red-700' : 
                             'bg-yellow-50 text-yellow-700'" 
                     class="px-2 py-1 text-xs font-medium rounded-full"
                   >
