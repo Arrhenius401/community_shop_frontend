@@ -6,17 +6,15 @@
 import { PageParam, PageResult, SortDirection, BaseUserInfo } from "./common";
 
 /**
- * 帖子状态枚举（对应后端 PostStatusEnum）
+ * 帖子状态枚举码（对应后端 PostStatusEnum.code）
  * 适配帖子列表查询、状态更新等场景的状态筛选需求
  */
 export enum PostStatus {
   DRAFT = "DRAFT",
   PENDING = "PENDING",
-  REJECTED = "REJECTED",
   NORMAL = "NORMAL",
-  isTop = "isTop",
-  HOT = "HOT",
-  ESSENCE = "ESSENCE",
+  BLOCKED = "BLOCKED",
+  HIDDEN = "HIDDEN",
   DELETED = "DELETED",
 }
 
@@ -141,6 +139,8 @@ export interface PostListItem {
   isLiked: boolean;
   /** 发布时间：列表页格式化展示（如 "2小时前"） */
   createTime: string;
+  /** 帖子状态：列表页展示当前帖子状态 */
+  status: PostStatus;
   /** 发布者极简信息：仅包含ID和用户名，适配列表页紧凑展示 */
   publisher: PostListItemPublisher;
 }
@@ -154,11 +154,11 @@ export interface PostQueryParams extends PageParam {
   keyword?: string;
   /** 发布者ID：查询指定用户的帖子，可选 */
   userId?: number;
-  /** 帖子状态：筛选指定状态的帖子（如 "NORMAL" 正常帖），可选 */
+  /** 帖子状态：筛选指定状态的帖子，可选 */
   status?: PostStatus;
-  /** 排序字段：默认按发布时间排序（与后端默认值 PostSortFieldEnum.CREATE_TIME 一致） */
+  /** 排序字段：默认按发布时间排序 */
   sortField?: PostSortField;
-  /** 排序方向：默认降序（与后端默认值 SortDirectionEnum.DESC 一致） */
+  /** 排序方向：默认降序 */
   sortDir?: SortDirection;
 }
 
