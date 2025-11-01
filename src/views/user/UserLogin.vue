@@ -408,6 +408,7 @@ export default {
         this.message.type = 'success'
         //存储登录信息
         this.userStore.saveLoginState(response)
+        localStorage.setItem("local-token",JSON.stringify(response.token))
         router.push('/');
         
       }catch (error: any) {
