@@ -274,18 +274,18 @@ export default {
     
     //判断account状态
     emailOrPhoneNumber(account: string) {
-      let status = ''
+      let status: LoginType;
       // 邮箱验证
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       // 手机号验证
       const phoneRegex = /^1[3-9]\d{9}$/
       
       if (emailRegex.test(account) ) {
-        status = 'email'
+        status = LoginType.EMAIL
       }else if(phoneRegex.test(account)){
-        status = 'phoneNunber'
+        status = LoginType.PHONE
       }else{
-        status = 'invalid'
+        status = LoginType.INVALID
       }
       return status
     },
@@ -297,7 +297,7 @@ export default {
         return false
       }
       
-      if (this.emailOrPhoneNumber(account) == 'invalid') {
+      if (this.emailOrPhoneNumber(account) === LoginType.INVALID) {
         this.errors.account = '请输入正确的邮箱或手机号'
         return false
       }
@@ -379,21 +379,21 @@ export default {
       this.loading = true
       
       try {
+        let status: LoginType = this.emailOrPhoneNumber(this.form.account.trim())
         const loginParams: LoginParams = {
-          loginType: LoginType.PASSWORD,
+          loginType: status,
           loginId: this.form.account.trim(),
           credential: this.form.password,
           verifyCode: this.showCaptcha ? this.form.captcha : undefined
         }
         let response: LoginResult
-        let status = this.emailOrPhoneNumber(loginParams.loginId)
         
         // 清除之前的消息
         this.message.text = ''
 
         status = this.emailOrPhoneNumber(loginParams.loginId)
         //调用登录API
-        if(status == 'email' || status == 'phoneNunber'){
+        if(status == LoginType.EMAIL || status == LoginType.PHONE){
           //输出日志
           console.log("发出登录请求: 凭证信息 = ",loginParams.loginId,";密码 = ",loginParams.credential)
           response = await loginByPassword(loginParams)
