@@ -46,7 +46,7 @@ interface CustomAxiosInstance extends AxiosInstance {
  * - headers：默认JSON格式，匹配后端@RequestBody接收逻辑
  */
 const request: CustomAxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8090/api/v1', // 后端服务默认端口+接口前缀，适配文档规范
+  baseURL: 'http://localhost:8090', // 后端服务默认端口+接口前缀，适配文档规范
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json;charset=utf-8'
