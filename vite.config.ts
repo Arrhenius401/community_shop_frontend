@@ -24,8 +24,9 @@ export default defineConfig({
   
   // 构建配置（对应原 build）
   build: {
-    outDir: 'dist',  // 输出目录，默认就是 dist
-    assetsDir: 'assets'  // 静态资源目录
+    rollupOptions: {
+      input: path.resolve(__dirname, 'index.html')
+    }
   },
   
   // CSS 配置
@@ -37,7 +38,7 @@ export default defineConfig({
       ]
     }
   },
-  
+
   // 插件配置
   plugins: [
     vue()  // 加载 Vue 插件
@@ -48,5 +49,5 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src')  // 例如：@ 指向 src 目录
     }
-  }
+  },
 })
