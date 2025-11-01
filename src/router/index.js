@@ -26,11 +26,10 @@ import OrderConfirm from '../views/Order/OrderConfirm.vue';
 import OrderPayment from '../views/Order/OrderPayment.vue';
 
 // 引入管理员相关的界面组件
-import AdminPanel from '../views/admin/AdminPanel.vue';
 import AdminDashboard from '@/views/admin/AdminDashboard.vue';
-import AdminDashboard from '@/views/admin/AdminDashboard.vue';
-import ProductManage from '@/views/admin/ProductManagement.vue';
-import UserManage from '@/views/admin/UserManagement.vue';
+import ProductManagement from '@/views/admin/ProductManagement.vue';
+import UserManagement from '@/views/admin/UserManagement.vue';
+import PostManagement from '@/views/admin/PostManagement.vue';
 
 import { checkIsAdmin, checkIsLogin } from '@/api/user';
 
@@ -163,7 +162,7 @@ const routes = [
   },{
     path: '/productManagement',
     name: 'ProductManagement',
-    component: ProductManage,
+    component: ProductManagement,
     meta: { 
       requiresAuth: true,
       requiresAdmin: true,
@@ -172,7 +171,7 @@ const routes = [
   },{
     path: '/userManagement',
     name: 'UserManagement',
-    component: UserManage,
+    component: UserManagement,
     meta: { 
       requiresAuth: true,
       requiresAdmin: true,
@@ -181,7 +180,7 @@ const routes = [
   },{
     path: '/postManagement',
     name: 'PostManagement',
-    component: AdminPanel,
+    component: PostManagement,
     meta: { 
       requiresAuth: true,
       requiresAdmin: true,
