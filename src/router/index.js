@@ -34,7 +34,6 @@ import PostManagement from '@/views/admin/PostManagement.vue';
 import { checkIsAdmin, checkIsLogin } from '@/api/user';
 
 const routes = [
-  
   {
     path: '/',
     name: 'Home',
@@ -196,57 +195,56 @@ const router = createRouter({
 });
 
 //全局前置守卫（Global Before Guards），用于在路由切换前执行功能，常用于权限验证
-//=> 在 JavaScript 中既不是赋值也不是遍历，而是 箭头函数（Arrow Function）的语法标志
-//它是 ES6（ES2015）引入的一种简洁的函数定义方式，常用于简化回调函数或匿名函数的写法。
-//它定义了简洁的函数。箭头前是函数的参数，箭头后是函数的返回值
 router.beforeEach(async (to, from, next) => {
-  //用户认证状态
-  let isAuthenticated
-
-  //还原本地token
-  let localToken = JSON.parse(window.localStorage.getItem('local-token'))
-  if(!localToken){
-    isAuthenticated = false
-  }else{
-    isAuthenticated = await checkIsLogin()
+  let isAuthenticated = false;
+  try {
+    const localToken = JSON.parse(window.localStorage.getItem('local-token'));
+    if (localToken) {
+      isAuthenticated = await checkIsLogin();
+    }
+  } catch (error) {
+    console.error('认证检查失败:', error);
+    isAuthenticated = false;
   }
 
-  if(isAuthenticated != true && isAuthenticated != false){
-    isAuthenticated = false
-  }
+  console.log("跳转界面中,认证状态: ", isAuthenticated);
 
-  console.log("跳转界面中,认证状态: ", isAuthenticated)
-
-  //检查已登录用户访问登录/注册界面
-  if(to.meta.requiresGuest && isAuthenticated){
-    //清除令牌
-    window.localStorage.removeItem('local-token')
-    next()
-    return
+  // 已登录用户访问游客页面，重定向到首页
+  if (to.meta.requiresGuest && isAuthenticated) {
+    window.localStorage.removeItem('local-token');
+    next();
+    return;
   }
   
-  //检查需要登录的界面
-  if(to.meta.requiresAuth && !isAuthenticated){
+  // 未登录用户访问需要认证的页面，重定向到登录页
+  if (to.meta.requiresAuth && !isAuthenticated) {
     next({
       path: '/login',
       query: { redirect: to.fullPath }
-    })
-    return
+    });
+    return;
   }
 
-  //检查需要管理员权限的界面
-  if(to.meta.requiresAdmin){
-    let isAdmin = await checkIsAdmin()
-    console.log("管理身份认证状态: ", isAdmin)
-    if(!isAdmin){
-      return
+  // 管理员权限校验
+  if (to.meta.requiresAdmin) {
+    try {
+      const isAdmin = await checkIsAdmin();
+      console.log("管理身份认证状态: ", isAdmin);
+      if (!isAdmin) {
+        next('/'); // 无权限重定向到首页
+        return;
+      }
+    } catch (error) {
+      console.error('管理员权限检查失败:', error);
+      next('/');
+      return;
     }
   }
 
-  next()
+  next(); // 正常放行
 });
 
-//全局前置守卫（Global After Guards），用于在路由切换后执行功能，常用于设置标题
+//全局后置守卫（Global After Guards），用于在路由切换后执行功能，常用于设置标题
 router.afterEach((to) => {
   //设置页面标题
   if(to.meta.title){
