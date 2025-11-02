@@ -12,9 +12,9 @@
             </button>
             <h1 class="text-xl font-bold text-blue-600">帖子详情</h1>
           </div>
-          <div class="flex items-center space-x-2">
-            <img src="/placeholder.svg?height=32&width=32" alt="用户头像" class="w-8 h-8 rounded-full">
-            <span class="text-gray-700">用户名</span>
+          <div class="flex items-center space-x-2"  @click="$router.push('/profile')">
+            <img :src="user.avatarUrl ? user.avatarUrl : '/placeholder.svg?height=32&width=32'" alt="用户头像" class="w-8 h-8 rounded-full">
+            <span class="text-gray-700">{{ user.username || '用户' }}</span>
           </div>
         </div>
       </div>
@@ -27,6 +27,8 @@
           <div class="bg-white rounded-lg shadow-sm">
             <!-- 帖子内容 -->
             <div class="p-6 border-b">
+              <h1 class="text-2xl font-bold text-gray-900 mb-4">{{ post.title }}</h1>
+
               <div class="flex items-center space-x-3 mb-4">
                 <img :src="post.publisher.avatarUrl || '/placeholder.svg?height=32&width=32'" alt="作者头像" class="w-12 h-12 rounded-full">
                 <div>
@@ -34,8 +36,6 @@
                   <p class="text-sm text-gray-500">{{ post.createTime }}</p>
                 </div>
               </div>
-              
-              <h1 class="text-2xl font-bold text-gray-900 mb-4">{{ post.title }}</h1>
               
               <!-- 增加帖子标识 -->
               <div class="flex gap-2 mb-4">
@@ -45,8 +45,8 @@
               </div>
               
               <div class="prose max-w-none mb-6">
-                <p v-for="(paragraph, index) in post.content" :key="index" class="mb-4 text-gray-700 leading-relaxed">
-                  {{ paragraph }}
+                <p  class="mb-4 text-gray-700 leading-relaxed">
+                  {{ post.content }}
                 </p>
               </div>
 
@@ -139,16 +139,18 @@
         <aside class="w-80">
           <div class="bg-white rounded-lg shadow-sm p-6 sticky top-24">
             <div class="text-center mb-4">
-              <img :src="post.publisher.avatarUrl || '/placeholder.svg?height=64&width=64'" alt="作者头像" class="w-16 h-16 rounded-full mx-auto mb-3">
-              <h3 class="font-semibold text-gray-900">{{ post.publisher.username }}</h3>
-              <p class="text-sm text-gray-500 mb-2">信用分：{{ post.publisher.creditScore }}</p>
+              <div @click="$router.push(`/profile/${post.publisher.userId}`)" class="mb-4" >
+                <img :src="post.publisher.avatarUrl || '/placeholder.svg?height=64&width=64'" alt="作者头像" class="w-16 h-16 rounded-full mx-auto mb-3">
+                <h3 class="font-semibold text-gray-900">{{ post.publisher.username }}</h3>
+                <p class="text-sm text-gray-500 mb-2">信用分：{{ post.publisher.creditScore }}</p>
+              </div>
               <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium">
                 关注
               </button>
             </div>
             
             <div class="border-t pt-4">
-              <h4 class="font-medium text-gray-900 mb-3">吧务操作</h4>
+              <h4 class="font-medium text-gray-900 mb-3">管理员操作</h4>
               <div class="space-y-2">
                 <button class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded">置顶帖子</button>
                 <button class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded">加精华</button>
@@ -165,11 +167,14 @@
 <script lang="ts">
 import { getPostDetail, likePost, publishPostFollow } from '@/api/post'
 import type { PostDetail, PostLikeParams, PostFollowPublishParams } from '@/types/post'
+import { LoginUserSimple } from '@/types/user';
+import { useUserStore } from '@/stores/user';
 
 export default {
   name: 'PostDetail',
   data() {
     return {
+      user: {} as LoginUserSimple,
       newComment: '',
       post:  {} as PostDetail,
       comments: [] as any[],
@@ -218,6 +223,10 @@ export default {
       } catch (error) {
         console.error('点赞操作失败:', error)
       }
+    },
+    getUserFromStore(){
+      const userStore = useUserStore();
+      this.user = userStore.userInfo;
     },
     submitComment() {
       if (!this.newComment.trim()) return
