@@ -30,7 +30,7 @@ export enum UserStatus {
  * 定义支持的登录方式，与后端登录接口校验规则一致
  */
 export enum LoginType {
-  PHONE = "PHONE",
+  PHONE_NUMBER = "PHONE_NUMBER",
   EMAIL = "EMAIL",
   THIRD_PARTY = "THIRD_PARTY",
   INVALID = "INVALID",
