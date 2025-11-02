@@ -28,13 +28,13 @@
           <div class="flex items-center space-x-4">
             <button 
               class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-              @click="$router.push('/postCreate')"
+              @click="$router.push('/post/create')"
             >
               发帖
             </button>
             <div class="flex items-center space-x-2 cursor-pointer" @click="$router.push('/profile')">
-              <img src="/placeholder.svg?height=32&width=32" alt="用户头像" class="w-8 h-8 rounded-full">
-              <span class="text-gray-700">用户名</span>
+              <img :src="user.avatarUrl ? user.avatarUrl : '/placeholder.svg?height=96&width=96'" alt="用户头像" class="w-8 h-8 rounded-full">
+              <span class="text-gray-700">{{ user.username ? user.username : '用户' }}</span>
             </div>
           </div>
         </div>
@@ -84,7 +84,7 @@
               @click="$router.push(`/post/${post.postId}`)"
             >
               <div class="flex items-start space-x-4">
-                <img :src="post.publisher.avatarUrl" alt="用户头像" class="w-10 h-10 rounded-full">
+                <img :src="post.publisher.avatarUrl ? post.publisher.avatarUrl : '/placeholder.svg?height=32&width=32'" alt="用户头像" class="w-10 h-10 rounded-full">
                 <div class="flex-1">
                   <div class="flex items-center space-x-2 mb-2">
                     <span class="font-medium text-gray-900">{{ post.publisher.username }}</span>
@@ -147,8 +147,9 @@
 //当这个值被修改时，任何依赖它的 DOM 或计算属性都会自动更新
 import { reactive } from 'vue'
 import { queryPostList } from '@/api/post';
-import { PostQueryParams, PostListItem } from '../types/post';
-
+import { PostQueryParams, PostListItem, PostStatus } from '../types/post';
+import { LoginUserSimple } from '@/types/user';
+import { useUserStore } from '@/stores/user';
 
 export default {
   name: 'Home',
@@ -157,6 +158,7 @@ export default {
       searchQuery: '',
       activeFilter: 'hot',
       showBackToTop: false,
+      user: {} as LoginUserSimple,
       filters: [
         { key: 'hot', label: '热度' },
         { key: 'time', label: '时间' },
@@ -175,6 +177,7 @@ export default {
   mounted() {
     window.addEventListener('scroll', this.handleScroll)
     this.fetchPosts() //组件搭载后获取帖子
+    this.getUserFromStore() //组件搭载后从store获取用户信息
   },
   beforeUnmount() {
     window.removeEventListener('scroll', this.handleScroll)
@@ -187,8 +190,9 @@ export default {
     async fetchPosts(){
       try{
         const postQuery: PostQueryParams = {
-        pageNum: 1,
-        pageSize: 50,
+          status: PostStatus.NORMAL,
+          pageNum: 1,
+          pageSize: 50,
         };
         this.posts = (await queryPostList(postQuery)).list;
         this.posts = this.posts.map(post => ({
@@ -200,6 +204,10 @@ export default {
       }catch(error){
         console.log("主页获取帖子出错: ", error)
       } 
+    },
+    getUserFromStore(){
+      const userStore = useUserStore();
+      this.user = userStore.userInfo;
     },
     handleScroll() {
       this.showBackToTop = window.scrollY > 300
