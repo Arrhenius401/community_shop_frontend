@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import UserHome from '../views/Home.vue';
 import UserLogin from '../views/user/UserLogin.vue';
 import UserProfile from '../views/user/UserProfile.vue';
+import UserProfileOther from '../views/user/UserProfileOther.vue';
 import UserChat from '../views/user/UserChat.vue';
 import UserRegister from '../views/user/UserRegister.vue';
 import UserForgotPassword from '../views/user/UserForgotPassword.vue';
@@ -59,6 +60,15 @@ const routes = [
     meta: { 
       requiresAuth: true,
       title: '个人资料 - Graygoo的web'
+    }
+  },
+  {
+    path: '/profile/:id',
+    name: 'UserProfileOther',
+    component: UserProfileOther,
+    meta: { 
+      requiresAuth: true,
+      title: '用户资料 - Graygoo的web'
     }
   },
   {
@@ -157,26 +167,24 @@ const routes = [
     meta:{
       requiresAuth: true,
       title: '订单详情 - Graygoo的web'
-    },
-    children: [
-      {
-        path: 'confirm',
-        name: 'OrderConfirm',
-        component: OrderConfirm,
-        meta: { 
-          requiresAuth: true,
-          title: '订单确认 - Graygoo的web'
-        }
-      },
-      {
-        path: 'payment',
-        name: 'OrderPayment',
-        component: OrderPayment,
-        meta: { 
-          requiresAuth: true,
-        }
-      }
-    ]
+    }
+  },
+  {
+    path: '/order/:id/confirm',
+    name: 'OrderConfirm',
+    component: OrderConfirm,
+    meta: { 
+      requiresAuth: true,
+      title: '订单确认 - Graygoo的web'
+    }
+  },
+  {
+    path: '/order/:id/payment',
+    name: 'OrderPayment',
+    component: OrderPayment,
+    meta: { 
+      requiresAuth: true,
+    }
   },
   // 管理员相关路由
   {
@@ -187,40 +195,38 @@ const routes = [
       requiresAuth: true,
       requiresAdmin: true,
       title: '控制台 - Graygoo的web'
-    },
-    children: [
-      {
-        path: 'product',
-        name: 'ProductManagement',
-        component: ProductManagement,
-        meta: { 
-          requiresAuth: true,
-          requiresAdmin: true,
-          title: '商品管理 - Graygoo的web'
-        }
-      },
-      {
-        path: 'user',
-        name: 'UserManagement',
-        component: UserManagement,
-        meta: { 
-          requiresAuth: true,
-          requiresAdmin: true,
-          title: '用户管理 - Graygoo的web'
-        }
-      },
-      {
-        path: 'post',
-        name: 'PostManagement',
-        component: PostManagement,
-        meta: { 
-          requiresAuth: true,
-          requiresAdmin: true,
-          title: '帖子管理 - Graygoo的web'
-        }
+    }
+  },
+  {
+      path: '/admin/product',
+      name: 'ProductManagement',
+      component: ProductManagement,
+      meta: { 
+        requiresAuth: true,
+        requiresAdmin: true,
+        title: '商品管理 - Graygoo的web'
       }
-    ]
-  }
+    },
+    {
+      path: '/admin/user',
+      name: 'UserManagement',
+      component: UserManagement,
+      meta: { 
+        requiresAuth: true,
+        requiresAdmin: true,
+        title: '用户管理 - Graygoo的web'
+      }
+    },
+    {
+      path: '/admin/post',
+      name: 'PostManagement',
+      component: PostManagement,
+      meta: { 
+        requiresAuth: true,
+        requiresAdmin: true,
+        title: '帖子管理 - Graygoo的web'
+      }
+    }
 ];
 
 // 创建路由实例
