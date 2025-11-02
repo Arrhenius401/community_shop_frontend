@@ -17,7 +17,7 @@
       <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
         <div class="flex items-start space-x-6">
           <div class="relative">
-            <img :src="user.avatarUrl || '/placeholder.svg?height=96&width=96'" alt="用户头像" class="w-24 h-24 rounded-full">
+            <img :src="user.avatarUrl ? user.avatarUrl : '/placeholder.svg?height=96&width=96'" alt="用户头像" class="w-24 h-24 rounded-full">
             <button class="absolute bottom-0 right-0 bg-blue-500 text-white p-1 rounded-full hover:bg-blue-600">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -61,7 +61,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                <span>{{ user.postCount }} 篇帖子</span>
+                <span>{{ myPosts.length }} 篇帖子</span>
               </div>
               <div class="flex items-center space-x-1">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,7 +188,7 @@
             <div class="space-y-3">
               <div class="flex items-center justify-between">
                 <span class="text-gray-700">控制台</span>
-                <button @click="$router.push('/adminPanel')" class="text-blue-600 hover:text-blue-700 text-sm">进入</button>
+                <button @click="$router.push('/admin')" class="text-blue-600 hover:text-blue-700 text-sm">进入</button>
               </div>
             </div>
           </div>
@@ -202,7 +202,7 @@
 <script lang="ts">
 import { useUserStore } from '@/stores/user';
 import { getUserProfile, updateUserProfile, checkIsAdmin } from '../../api/user';
-import { queryPostList } from '@/api/post';
+import { queryPrivatePostList } from '@/api/post';
 import { UserDetail, UserProfileUpdateParams, Gender } from '../../types/user';
 import { PostQueryParams, PostListItem } from '../../types/post';
 
@@ -253,11 +253,11 @@ export default {
       try{
         const userId = this.userStore.userInfo?.userId || null;
         const postQuery: PostQueryParams = {
-        pageNum: 1,
-        pageSize: 10,
-        userId: userId || undefined
+          pageNum: 1,
+          pageSize: 10,
+          userId: userId || undefined
         };
-        this.myPosts = (await queryPostList(postQuery)).list
+        this.myPosts = (await queryPrivatePostList(postQuery)).list
       }catch(error){
         console.log("获取本机用户创建帖子的请求失败: ", error)
       }
