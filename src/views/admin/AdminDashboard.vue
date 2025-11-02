@@ -15,7 +15,7 @@
               </svg>
               <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full"></span>
             </button>
-            <div class="flex items-center">
+            <div class="flex items-center" @click="$router.push('/profile')">
               <img src="/placeholder.svg?height=32&width=32" alt="Admin" class="w-8 h-8 rounded-full">
               <span class="ml-2 text-sm font-medium text-gray-700">管理员</span>
             </div>
@@ -92,7 +92,7 @@
 
       <!-- 功能入口 -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <a href="#posts" @click.prevent="toPostManagement" class="bg-white rounded-lg border border-gray-200 p-6 hover:border-primary hover:shadow-md transition-all group">
+        <div @click="$router.push('/admin/post')" class="bg-white rounded-lg border border-gray-200 p-6 hover:border-primary hover:shadow-md transition-all group">
           <div class="flex items-center justify-between mb-4">
             <div class="w-12 h-12 bg-primary-50 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
               <svg class="w-6 h-6 text-primary group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,9 +109,9 @@
             <span class="text-xs text-gray-500">待审核</span>
             <span class="px-2 py-0.5 text-xs font-medium bg-danger-50 text-danger rounded-full">12</span>
           </div>
-        </a>
+        </div>
 
-        <a href="#users" @click.prevent="toUserManagement" class="bg-white rounded-lg border border-gray-200 p-6 hover:border-primary hover:shadow-md transition-all group">
+        <div @click="$router.push('/admin/user')" class="bg-white rounded-lg border border-gray-200 p-6 hover:border-primary hover:shadow-md transition-all group">
           <div class="flex items-center justify-between mb-4">
             <div class="w-12 h-12 bg-success-50 rounded-lg flex items-center justify-center group-hover:bg-success group-hover:scale-110 transition-all">
               <svg class="w-6 h-6 text-success group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,9 +128,9 @@
             <span class="text-xs text-gray-500">今日新增</span>
             <span class="px-2 py-0.5 text-xs font-medium bg-success-50 text-success rounded-full">+8</span>
           </div>
-        </a>
+        </div>
 
-        <a href="#products" @click.prevent="toProductManagement" class="bg-white rounded-lg border border-gray-200 p-6 hover:border-primary hover:shadow-md transition-all group">
+        <div @click="toProductManagement" class="bg-white rounded-lg border border-gray-200 p-6 hover:border-primary hover:shadow-md transition-all group">
           <div class="flex items-center justify-between mb-4">
             <div class="w-12 h-12 bg-warning-50 rounded-lg flex items-center justify-center group-hover:bg-warning group-hover:scale-110 transition-all">
               <svg class="w-6 h-6 text-warning group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,7 +147,7 @@
             <span class="text-xs text-gray-500">待审核</span>
             <span class="px-2 py-0.5 text-xs font-medium bg-warning-50 text-warning rounded-full">5</span>
           </div>
-        </a>
+        </div>
       </div>
 
       <!-- 最近活动 -->
@@ -179,11 +179,15 @@
 
 <script lang="ts">
 import { PostStatus } from '@/types/post';
+import { LoginUserSimple } from '@/types/user'
 import { queryUserCount } from '@/api/user'
 import { queryPostList, queryPostCount } from '@/api/post'
+import { useUserStore } from '@/stores/user';
+
 export default {
   data() {
     return {
+      user: {} as LoginUserSimple,
       stats: {
         totalPosts: 0,
         totalUsers: 0,
@@ -243,22 +247,18 @@ export default {
         console.error('加载统计数据失败:', error)
       }
     },
-    toUserManagement() {
-      // 跳转到用户管理页面的逻辑
-      this.$router.push('/userManagement')
+    getUserFromStore(){
+      const userStore = useUserStore();
+      this.user = userStore.userInfo;
     },
     toProductManagement() {
-      // 跳转到商品管理页面的逻辑
-      this.$router.push('/productManagement')
-    },
-    toPostManagement() {
       // 暂不跳转
       this.$emit('show-toast', {
         type: 'info',
         title: '功能开发中',
         message: '帖子管理功能正在开发中'
       });
-    },
+    }
   },
   mounted() {
     this.loadStats()
