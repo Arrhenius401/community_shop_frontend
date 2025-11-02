@@ -39,9 +39,11 @@ const routes = [
     name: 'Home',
     component: UserHome,
     meta:{
+      requiresAuth: true,
       title: '主页 - Graygoo的web'
     }
-  },{
+  },
+  {
     path: '/login',
     name: 'UserLogin',
     component: UserLogin,
@@ -49,7 +51,8 @@ const routes = [
       requiresGuest: true,
       title: '登录 - Graygoo的web'
     }
-  },{
+  },
+  {
     path: '/profile',
     name: 'UserProfile',
     component: UserProfile,
@@ -57,15 +60,17 @@ const routes = [
       requiresAuth: true,
       title: '个人资料 - Graygoo的web'
     }
-  },{
-    path: '/userChat',
+  },
+  {
+    path: '/chat',
     name: 'UserChat',
     component: UserChat,
     meta: { 
       requiresAuth: true,
       title: '消息 - Graygoo的web'
     }
-  },{
+  },
+  {
     path: '/register',
     name: 'UserRegister',
     component: UserRegister,
@@ -73,7 +78,8 @@ const routes = [
       requiresGuest: true,
       title: '注册 - Graygoo的web'
     }
-  },{
+  },
+  {
     path: '/forgetPassword',
     name: 'UserForgetPassword',
     component: UserForgotPassword,
@@ -81,110 +87,139 @@ const routes = [
       requiresGuest: true,
       title: '找回密码 - Graygoo的web'
     }
-  },{
-    path: '/messageCenter',
+  },
+  // 消息相关路由
+  {
+    path: '/message/center',
     name: 'MessageCenter',
     component: MessageCenter,
     meta: { 
       requiresAuth: true,
       title: '消息中心 - Graygoo的web'
-    }
-  },{
-    path: '/messageDetail/:id',
-    name: 'MessageDetail',
-    component: MessageDetail,
-    meta: { 
-      requiresAuth: true,
-      title: '消息详情 - Graygoo的web'
-    }
-  },{
-    path: '/postDetail/:id',
+    },
+    children: [
+      {
+        path: ':id',
+        name: 'MessageDetail',
+        component: MessageDetail,
+        meta: { 
+          requiresAuth: true,
+          title: '消息详情 - Graygoo的web'
+        }
+      }
+    ]
+  },
+  // 帖子相关路由
+  {
+    path: '/post/:id',
     name: 'PostDetail',
     component: PostDetail,
     meta:{
+      requiresAuth: true,
       title: '帖子详情 - Graygoo的web'
     }
-  },{
-    path: '/postCreate',
+  },
+  {
+    path: '/post/create',
     name: 'PostCreate',
     component: PostCreate,
     meta:{
+      requiresAuth: true,
       title: '发布帖子 - Graygoo的web'
     }
-  },{
-    path: '/productList',
+  },
+  // 商品相关路由
+  {
+    path: '/product',
     name: 'ProductList',
     component: ProductList,
     meta:{
+      requiresAuth: true,
       title: '商品列表 - Graygoo的web'
-    }
-  },{
-    path: '/productDetail/:id',
-    name: 'ProductDetail',
-    component: ProductDetail,
-    meta:{
-      title: '商品详情 - Graygoo的web'
-    }
-  },{
-    path: '/orderDetail/:id',
+    },
+    children: [
+      {
+        path: ':id',
+        name: 'ProductDetail',
+        component: ProductDetail,
+        meta:{
+          requiresAuth: true,
+          title: '商品详情 - Graygoo的web'
+        }
+      }
+    ]
+  },
+  // 订单相关路由
+  {
+    path: '/order/:id',
     name: 'OrderDetail',
     component: OrderDetail,
     meta:{
       requiresAuth: true,
       title: '订单详情 - Graygoo的web'
-    }
-  },{
-    path: '/orderConfirm',
-    name: 'OrderConfirm',
-    component: OrderConfirm,
-    meta: { 
-      requiresAuth: true,
-      title: '订单确认 - Graygoo的web'
-    }
-  },{
-    path: '/orderPayment',
-    name: 'OrderPayment',
-    component: OrderPayment,
-    meta: { 
-      requiresAuth: true,
-      title: '支付 - Graygoo的web'
-    }
-  },{
-    path: '/adminDashboard',
+    },
+    children: [
+      {
+        path: 'confirm',
+        name: 'OrderConfirm',
+        component: OrderConfirm,
+        meta: { 
+          requiresAuth: true,
+          title: '订单确认 - Graygoo的web'
+        }
+      },
+      {
+        path: 'payment',
+        name: 'OrderPayment',
+        component: OrderPayment,
+        meta: { 
+          requiresAuth: true,
+        }
+      }
+    ]
+  },
+  // 管理员相关路由
+  {
+    path: '/admin',
     name: 'AdminDashboard',
     component: AdminDashboard,
     meta: { 
       requiresAuth: true,
       requiresAdmin: true,
       title: '控制台 - Graygoo的web'
-    }
-  },{
-    path: '/productManagement',
-    name: 'ProductManagement',
-    component: ProductManagement,
-    meta: { 
-      requiresAuth: true,
-      requiresAdmin: true,
-      title: '商品管理 - Graygoo的web'
-    }
-  },{
-    path: '/userManagement',
-    name: 'UserManagement',
-    component: UserManagement,
-    meta: { 
-      requiresAuth: true,
-      requiresAdmin: true,
-      title: '用户管理 - Graygoo的web'
-    }
-  },{
-    path: '/postManagement',
-    name: 'PostManagement',
-    component: PostManagement,
-    meta: { 
-      requiresAuth: true,
-      requiresAdmin: true,
-      title: '帖子管理 - Graygoo的web'
-    }
+    },
+    children: [
+      {
+        path: 'product',
+        name: 'ProductManagement',
+        component: ProductManagement,
+        meta: { 
+          requiresAuth: true,
+          requiresAdmin: true,
+          title: '商品管理 - Graygoo的web'
+        }
+      },
+      {
+        path: 'user',
+        name: 'UserManagement',
+        component: UserManagement,
+        meta: { 
+          requiresAuth: true,
+          requiresAdmin: true,
+          title: '用户管理 - Graygoo的web'
+        }
+      },
+      {
+        path: 'post',
+        name: 'PostManagement',
+        component: PostManagement,
+        meta: { 
+          requiresAuth: true,
+          requiresAdmin: true,
+          title: '帖子管理 - Graygoo的web'
+        }
+      }
+    ]
   }
 ];
 
