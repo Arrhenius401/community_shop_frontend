@@ -105,6 +105,8 @@ export const queryPrivatePostCount = (params: PostQueryParams) => {
   return request.get<number>('/api/v1/posts/query/count/private', { params });
 }
 
+// ------------- 以下为跟帖相关接口 -------------
+
 /**
  * 发布跟帖（对应后端 POST /api/v1/posts/{postId}/follows，需登录）
  * @param postId 关联帖子ID（路径参数）
@@ -112,7 +114,7 @@ export const queryPrivatePostCount = (params: PostQueryParams) => {
  * @returns 跟帖详情（与后端 PostFollowDetailDTO 对齐）
  */
 export const publishPostFollow = (postId: number, params: PostFollowPublishParams) => {
-  return request.post<PostFollowDetail>(`/api/v1/posts/${postId}/follows`, params);
+  return request.post<PostFollowDetail>(`/api/v1/posts/${postId}/follows/create`, params);
 };
 
 /**
@@ -133,8 +135,18 @@ export const updatePostFollow = (postId: number, followId: number, params: PostF
  * @returns 分页跟帖列表
  */
 export const queryPostFollowList = (postId: number, params: PostFollowQueryParams) => {
-  return request.get<PostFollowListPageResult>(`/api/v1/posts/${postId}/follows`, { params });
+  return request.get<PostFollowListPageResult>(`/api/v1/posts/${postId}/follows/query/list`, { params });
 };
+
+/**
+ * 统计符合条件的跟帖数量（对应后端 GET /api/v1/posts/{postId}/follows/query/count，无需登录）
+ * @param postId 帖子ID（路径参数）
+ * @param params 跟帖查询参数（与后端 PostFollowQueryDTO 对齐）
+ * @returns 符合条件的跟帖数量
+ */
+export const queryPostFollowCount = (postId: number, params: PostFollowQueryParams) => {
+  return request.get<number>(`/api/v1/posts/${postId}/follows/query/count`, { params });
+}
 
 /**
  * 管理员更新跟帖状态（对应后端 PATCH /api/v1/posts/{postId}/follows/{followId}/status，需管理员权限）
