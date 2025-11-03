@@ -134,6 +134,7 @@
                       </div>
                     </div>
                     <div class="flex space-x-2 ml-4">
+                      <button class="text-green-600 hover:text-green-700 text-sm" @click="$router.push(`/post/${post.postId}`)">查看</button>
                       <button class="text-blue-600 hover:text-blue-700 text-sm">编辑</button>
                       <button class="text-red-600 hover:text-red-700 text-sm">删除</button>
                     </div>

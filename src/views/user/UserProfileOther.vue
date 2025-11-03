@@ -68,7 +68,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                <span>{{ user.postCount || 0 }} 篇帖子</span>
+                <span>{{ totalCount || 0 }} 篇帖子</span>
               </div>
               <div class="flex items-center space-x-1">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,45 +93,51 @@
 
       <!-- 用户帖子 -->
       <div class="bg-white rounded-lg shadow-sm">
-        <div class="p-6 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">用户帖子</h3>
+        <div class="p-6 border-b">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">用户帖子</h3>
+          </div>
         </div>
-        
+
         <!-- 帖子列表 -->
-        <div v-if="userPosts.length > 0" class="divide-y divide-gray-200">
-          <div v-for="post in userPosts" :key="post.postId" class="p-6 hover:bg-gray-50 transition-colors cursor-pointer" @click="viewPost(post)">
-            <div class="flex items-start justify-between">
-              <div class="flex-1">
-                <h4 class="text-lg font-medium text-gray-900 mb-2 hover:text-blue-600">{{ post.title }}</h4>
-                <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ post.summary }}</p>
-                <div class="flex items-center space-x-4 text-sm text-gray-500">
-                  <span>{{ formatDate(post.createTime) }}</span>
-                  <span class="flex items-center space-x-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                    </svg>
-                    <span>{{ post.likeCount || 0 }}</span>
-                  </span>
-                  <span class="flex items-center space-x-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
-                    </svg>
-                    <span>{{ post.commentCount || 0 }}</span>
-                  </span>
+         <div v-if="userPosts.length > 0" class="divide-y divide-gray-200">
+          <div class="p-6">
+            <div class="space-y-4">
+              <div v-for="post in userPosts" :key="post.postId" class="border border-gray-200 rounded-lg p-4" @click="viewPost(post)">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <h4 class="text-lg font-medium text-gray-900 mb-2 hover:text-blue-600">{{ post.title }}</h4>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ post.summary }}</p>
+                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                      <span>{{ formatDate(post.createTime) }}</span>
+                      <span class="flex items-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                        <span>{{ post.likeCount || 0 }}</span>
+                      </span>
+                      <span class="flex items-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                        </svg>
+                        <span>{{ post.commentCount || 0 }}</span>
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 空状态 -->
-        <div v-else class="p-12 text-center">
-          <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
-          <p class="text-sm text-gray-500">该用户暂无发布帖子</p>
-        </div>
-
+          <!-- 空状态 -->
+          <div v-else class="p-12 text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <p class="text-sm text-gray-500">该用户暂无发布帖子</p>
+          </div>
+        
         <!-- 分页 -->
         <div v-if="totalPages > 1" class="px-6 py-4 border-t border-gray-200 flex items-center justify-center">
           <div class="flex items-center space-x-2">
@@ -291,7 +297,7 @@ export default {
     },
     viewPost(post: any) {
       // 跳转到帖子详情页
-      // this.$router.push(`/post/${post.postId}`)
+      this.$router.push(`/post/${post.postId}`)
     },
     goBack() {
       this.$router.back()
