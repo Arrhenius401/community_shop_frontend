@@ -199,7 +199,7 @@ export interface PostStatusUpdateParams {
   /** 帖子ID：定位待更新状态的帖子，非空（与后端 @NotNull 校验规则一致） */
   postId: number;
   /** 目标状态：需为 PostStatus 合法值（如 "OFF_SALE" 下架），非空（与后端 @NotBlank 校验规则一致） */
-  targetStatus: PostStatus;
+  status: PostStatus;
   /** 操作人ID：用于权限校验（管理员或发布者），非空（与后端 @NotNull 校验规则一致） */
   operatorId: number;
   /** 状态变更原因：可选，最大200字（如 "内容违规"） */
