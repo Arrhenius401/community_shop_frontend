@@ -4,7 +4,7 @@
     <header class="bg-white shadow-sm border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center h-16">
-          <button @click="goBack" class="mr-4 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+          <button @click="$router.push('/admin')" class="mr-4 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"></path>
             </svg>
@@ -332,9 +332,6 @@ export default {
       this.filters = { search: '', status: '', sorting: 'time-desc' }
       this.searchPosts()
     },
-    goBack() {
-      alert('返回管理面板')
-    },
     viewPost(post: PostListItem) {
       this.selectedPost = post
       this.showModal = true
@@ -348,7 +345,7 @@ export default {
         // 调用状态更新API（需替换实际operatorId）
         await updatePostStatus({
           postId: post.postId,
-          targetStatus,
+          status: targetStatus,
           operatorId: 1 // 当前管理员ID，需从登录信息获取
         });
 
@@ -365,9 +362,16 @@ export default {
     },
     async deletePost(post: PostListItem) {
       if (confirm(`确定删除帖子 "${post.title}" 吗？`)) {
-        // 调用API删除
-        post.status = PostStatus.DELETED
-        alert(`帖子 ${post.postId} 已删除`)
+        try {
+          await updatePostStatus({
+            postId: post.postId,
+            status: PostStatus.DELETED,
+            operatorId: 1 // 当前管理员ID，需从登录信息获取
+          })
+        } catch (error) {
+          console.error('删除帖子失败:', error);
+          alert('删除帖子失败，请重试');
+        }
         await this.fetchPosts()
       }
     }
