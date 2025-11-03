@@ -144,7 +144,7 @@ export const queryPostFollowList = (postId: number, params: PostFollowQueryParam
  * @returns 操作结果（true=成功）
  */
 export const updatePostFollowStatus = (postId: number, followId: number, params: PostFollowStatusUpdateParams) => {
-  return request.post<boolean>(`/api/v1/posts/${postId}/follows/update/status`, params);
+  return request.patch<boolean>(`/api/v1/posts/${postId}/follows/${followId}/status`, params);
 };
 
 /**
@@ -153,5 +153,5 @@ export const updatePostFollowStatus = (postId: number, followId: number, params:
  * @returns 操作结果（true=成功）
  */
 export const updatePostStatus = (params: PostStatusUpdateParams) => {
-  return request.post<boolean>(`/api/v1/posts/update/status`, params);
+  return request.patch<boolean>(`/api/v1/posts/update/status`, params);
 };
