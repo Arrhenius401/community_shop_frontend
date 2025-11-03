@@ -208,6 +208,7 @@ export default {
     getUserFromStore(){
       const userStore = useUserStore();
       this.user = userStore.userInfo;
+      console.log("获取用户信息: ", this.user)
     },
     handleScroll() {
       this.showBackToTop = window.scrollY > 300
