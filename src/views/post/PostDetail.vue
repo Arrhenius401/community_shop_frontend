@@ -14,7 +14,7 @@
           </div>
           <div class="flex items-center space-x-2"  @click="$router.push('/profile')">
             <img :src="user.avatarUrl ? user.avatarUrl : '/placeholder.svg?height=32&width=32'" alt="用户头像" class="w-8 h-8 rounded-full">
-            <span class="text-gray-700">{{ user.username || '用户' }}</span>
+            <span class="text-gray-700">{{ user.username ? user.username : '用户' }}</span>
           </div>
         </div>
       </div>
@@ -30,7 +30,7 @@
               <h1 class="text-2xl font-bold text-gray-900 mb-4">{{ post.title }}</h1>
 
               <div class="flex items-center space-x-3 mb-4">
-                <img :src="post.publisher.avatarUrl || '/placeholder.svg?height=32&width=32'" alt="作者头像" class="w-12 h-12 rounded-full">
+                <img :src="post.publisher.avatarUrl ? post.publisher.avatarUrl : '/placeholder.svg?height=32&width=32'" alt="作者头像" class="w-12 h-12 rounded-full">
                 <div>
                   <h3 class="font-semibold text-gray-900">{{ post.publisher.username }}</h3>
                   <p class="text-sm text-gray-500">{{ post.createTime }}</p>
@@ -97,8 +97,95 @@
 
             <!-- 评论区 -->
             <div class="p-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">评论 ({{ comments.length }})</h3>
-              
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">评论 ({{ totalComments }})</h3>
+
+              <!-- 评论列表 增加高度和优化布局，支持更大的评论区域，每个评论高度约250px -->
+              <div class="space-y-4 mb-6 max-h-[1000px] overflow-y-auto border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <div v-if="comments.length === 0" class="text-center py-12 text-gray-500">
+                  <p>暂无评论</p>
+                </div>
+                <div v-for="comment in comments" :key="comment.follower.userId" class="bg-white rounded-lg p-4 border border-gray-200 min-h-[240px] flex flex-col justify-between">
+                  <!-- 评论者信息 -->
+                  <div>
+                    <div class="flex items-center justify-between mb-3">
+                      <div class="flex items-center space-x-3">
+                        <img :src="comment.follower.avatarUrl ? comment.follower.avatarUrl : '/placeholder.svg?height=40&width=40'" alt="评论者头像" class="w-10 h-10 rounded-full">
+                        <div>
+                          <span class="font-medium text-gray-900">{{ comment.follower.username }}</span>
+                          <span class="text-sm text-gray-500 ml-2">{{ comment.createTime }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">{{ comment.content }}</p>
+                  </div>
+
+                  <!-- 新增点赞和删除按钮，放在评论右下方 -->
+                  <div class="flex items-center justify-end space-x-3 mt-4 pt-4 border-t border-gray-100">
+                    <button 
+                      :class="[
+                        'flex items-center space-x-1 px-3 py-1.5 rounded-lg text-sm transition-colors',
+                        comment.isLiked ? 'text-red-600 bg-red-50 hover:bg-red-100' : 'text-gray-600 bg-gray-100 hover:bg-gray-200'
+                      ]"
+                      @click="toggleCommentLike(comment)"
+                      title="点赞"
+                    >
+                      <svg class="w-4 h-4" :fill="comment.isLiked ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                      </svg>
+                      <span>{{ comment.likeCount || 0 }}</span>
+                    </button>
+
+                    <!-- 删除按钮仅管理员可见 -->
+                    <button 
+                      v-if="user.isAdmin"
+                      @click="deleteComment(comment)"
+                      class="flex items-center space-x-1 px-3 py-1.5 rounded-lg text-sm text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
+                      title="删除评论"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                      <span>删除</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 新增评论分页控制 -->
+              <div class="flex items-center justify-center gap-2 mb-6 py-4">
+                <button 
+                  @click="goToCommentPage(1)" 
+                  :disabled="currentCommentPage === 1 || loadingComments"
+                  class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  首页
+                </button>
+                <button 
+                  @click="goToCommentPage(currentCommentPage - 1)" 
+                  :disabled="currentCommentPage === 1 || loadingComments"
+                  class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  上一页
+                </button>
+                <span class="px-3 py-1.5 text-sm text-gray-700">
+                  第 {{ currentCommentPage }} / {{ totalCommentPages }} 页
+                </span>
+                <button 
+                  @click="goToCommentPage(currentCommentPage + 1)" 
+                  :disabled="currentCommentPage >= totalCommentPages || loadingComments"
+                  class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  下一页
+                </button>
+                <button 
+                  @click="goToCommentPage(totalCommentPages)" 
+                  :disabled="currentCommentPage >= totalCommentPages || loadingComments"
+                  class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  末页
+                </button>
+              </div>
+
               <!-- 发表评论 -->
               <div class="mb-6">
                 <textarea 
@@ -118,19 +205,6 @@
                 </div>
               </div>
 
-              <!-- 评论列表 -->
-              <div class="space-y-4">
-                <div v-for="comment in comments" :key="comment.id" class="flex space-x-3">
-                  <img :src="comment.author.avatar" alt="评论者头像" class="w-8 h-8 rounded-full">
-                  <div class="flex-1">
-                    <div class="flex items-center space-x-2 mb-1">
-                      <span class="font-medium text-gray-900">{{ comment.author.name }}</span>
-                      <span class="text-sm text-gray-500">{{ comment.time }}</span>
-                    </div>
-                    <p class="text-gray-700">{{ comment.content }}</p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </main>
@@ -149,12 +223,12 @@
               </button>
             </div>
             
-            <div class="border-t pt-4">
+            <div v-if="user.isAdmin" class="border-t pt-4">
               <h4 class="font-medium text-gray-900 mb-3">管理员操作</h4>
               <div class="space-y-2">
-                <button class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded">置顶帖子</button>
-                <button class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded">加精华</button>
-                <button class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded">删除帖子</button>
+                <button @click="setTopPost" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded">{{ post.isTop ? '取消置顶' : '置顶帖子' }}</button>
+                <button @click="setEssentialPost" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded">{{ post.isEssence ? '取消精华' : '加精华' }}</button> 
+                <button @click="hiddenPost" class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded">{{ post.status === PostStatus.NORMAL ? '隐藏帖子' : '取消隐藏' }}</button>
               </div>
             </div>
           </div>
@@ -165,8 +239,8 @@
 </template>
 
 <script lang="ts">
-import { getPostDetail, likePost, publishPostFollow } from '@/api/post'
-import type { PostDetail, PostLikeParams, PostFollowPublishParams } from '@/types/post'
+import { getPostDetail, likePost, publishPostFollow, queryPostFollowList, setPostEssenceOrTop, updatePostFollowStatus, updatePostStatus } from '@/api/post'
+import { PostDetail, PostLikeParams, PostFollowPublishParams, PostStatusUpdateParams, PostFollowStatusUpdateParams, PostFollowDetail, PostFollowQueryParams, PostEssenceTopParams, PostFollowStatus, PostStatus } from '@/types/post'
 import { LoginUserSimple } from '@/types/user';
 import { useUserStore } from '@/stores/user';
 
@@ -177,10 +251,21 @@ export default {
       user: {} as LoginUserSimple,
       newComment: '',
       post:  {} as PostDetail,
-      comments: [] as any[],
+      comments: [] as PostFollowDetail[],
+      PostStatus,
+      currentCommentPage: 1,
+      commentPageSize: 4,
+      totalComments: 0,
+      loadingComments: false
     }
   },
-   created() {
+  computed: {
+    totalCommentPages() {
+      return Math.ceil(this.totalComments / this.commentPageSize)
+    }
+  },
+   mounted() {
+    this.getUserFromStore()
     // 获取路由参数中的帖子ID
     const postId = Number(this.$route.params.id)
     if (postId) {
@@ -189,10 +274,6 @@ export default {
     }
   },
   methods: {
-    // 收藏帖子功能
-    // toggleCollect() {
-    //   this.post.isCollected = !this.post.isCollected
-    // },
     async loadPostDetail(postId: number) {
       try {
         const response = await getPostDetail(postId)
@@ -201,11 +282,46 @@ export default {
         console.error('加载帖子详情失败:', error)
       }
     },
-    
     async loadComments(postId: number) {
-      // 实际项目中应调用queryPostFollowList API
-      console.log('加载评论:', postId)
-      // 模拟数据保持不变
+      this.loadingComments = true
+      try {
+        const params: PostFollowQueryParams = {
+          postId: postId,
+          status: PostFollowStatus.NORMAL,
+          pageNum: this.currentCommentPage,
+          pageSize: this.commentPageSize
+        }
+        const response = await queryPostFollowList(postId, params)
+        this.comments = response.list
+        this.totalComments = response.total || (response.list && response.list.length) || 0
+      } catch (error) {
+        console.error('加载评论失败:', error)
+      } finally {
+        this.loadingComments = false
+      }
+    },
+    async goToCommentPage(page: number) {
+      if (page < 1 || page > this.totalCommentPages || this.loadingComments) return
+      this.currentCommentPage = page
+      const postId = Number(this.$route.params.id)
+      if (postId) {
+        await this.loadComments(postId)
+      }
+    },
+    async hiddenPost() {
+      if (!this.post) return
+      
+      try {
+        const params: PostStatusUpdateParams = {
+          postId: this.post.postId,
+          status: this.post.status === PostStatus.NORMAL ? PostStatus.HIDDEN : PostStatus.NORMAL,
+          operatorId: this.user.userId
+        }
+        await updatePostStatus(params)
+        this.loadPostDetail(this.post.postId)
+      } catch (error) {
+        console.error('隐藏帖子失败:', error)
+      }
     },
     async toggleLike() {
       if (!this.post) return
@@ -224,11 +340,46 @@ export default {
         console.error('点赞操作失败:', error)
       }
     },
-    getUserFromStore(){
-      const userStore = useUserStore();
-      this.user = userStore.userInfo;
+    async toggleCommentLike(comment: PostFollowDetail) {
+      try {
+        // 调用后端API更新评论点赞状态
+        // await likePostComment(comment.followId, { isLike: !comment.isLiked })
+        comment.isLiked = !comment.isLiked
+        comment.likeCount = (comment.likeCount || 0) + (comment.isLiked ? 1 : -1)
+      } catch (error) {
+        console.error('评论点赞失败:', error)
+      }
     },
-    submitComment() {
+    async deleteComment(comment: PostFollowDetail) {
+      if (!this.user.isAdmin) {
+        alert('只有管理员可以删除评论')
+        return
+      }
+      
+      try {
+        if (confirm('确定要删除这条评论吗？')) {
+          // 调用后端API删除评论
+          const params: PostFollowStatusUpdateParams = {
+            postFollowId: comment.postFollowId,
+            targetStatus: PostFollowStatus.HIDDEN,
+          }
+          await updatePostFollowStatus(
+            this.post.postId,
+            comment.postFollowId,
+            params
+          )
+          const index = this.comments.findIndex(c => c.follower.userId === comment.follower.userId)
+          if (index > -1) {
+            this.comments.splice(index, 1)
+            this.totalComments -= 1
+          }
+          alert('评论已删除')
+        }
+      } catch (error) {
+        console.error('删除评论失败:', error)
+      }
+    },
+    async submitComment() {
       if (!this.newComment.trim()) return
       
       const comment : PostFollowPublishParams = {
@@ -237,12 +388,54 @@ export default {
       }
       
       try {
-        publishPostFollow(this.post.postId, comment)
-        this.comments.unshift(comment)
+        await publishPostFollow(this.post.postId, comment)
         this.newComment = ''
+        // 重新加载评论列表
+        const postId = Number(this.$route.params.id)
+        if (postId) {
+          this.loadComments(postId)
+        }
       } catch (error) {
         console.error('发表评论失败:', error)
       }
+    },
+    async setTopPost() {
+      if (!this.post) return
+      
+      try {
+        const params: PostEssenceTopParams = {
+          postId: this.post.postId,
+          isTop: this.post.isTop ? false : true,
+          isEssence: this.post.isEssence
+        }
+        await setPostEssenceOrTop(this.post.postId, params)
+        this.loadPostDetail(this.post.postId)
+      } catch (error) {
+        console.error('置顶帖子失败:', error)
+      }
+    },
+    async setEssentialPost() {
+      if (!this.post) return
+      
+      try {
+        const params: PostEssenceTopParams = {
+          postId: this.post.postId,
+          isTop: this.post.isTop,
+          isEssence: this.post.isEssence ? false : true
+        }
+        await setPostEssenceOrTop(this.post.postId, params)
+        this.loadPostDetail(this.post.postId)
+      } catch (error) {
+        console.error('加精华帖子失败:', error)
+      }
+    },
+    getUserFromStore(){
+      const userStore = useUserStore();
+      this.user = userStore.userInfo;
+      // 延迟打印，等待响应式数据初始化
+      setTimeout(() => {
+        console.info("pinia存储用户信息:", userStore.userInfo);
+      }, 0);
     },
     openImageModal(image: string) {
       // 实现图片预览功能
