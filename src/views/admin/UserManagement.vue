@@ -287,7 +287,7 @@ export default {
           status: this.filters.status as UserStatus,
           role: this.filters.role as UserRole,
           // 处理搜索逻辑（根据实际后端支持的搜索字段调整）
-          filterField: this.filters.search ? 'username' : undefined,
+          filterField: 'USERNAME',
           filterValue: this.filters.search || undefined
         };
 
@@ -323,7 +323,7 @@ export default {
       try {
         await updateUserStatus(parqams)
         await this.fetchUsers()
-        alert(`用户 ${user.username} 已${user.status === UserStatus.NORMAL ? '解除封禁' : '封禁'}`)
+        alert(`用户 ${user.username} 已${user.status === UserStatus.NORMAL ? '封禁' : '解除封禁'}`)
       } catch (error) {
         console.error('修改用户状态失败:', error);
         alert('修改用户状态失败，请重试');
