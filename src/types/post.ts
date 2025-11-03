@@ -264,7 +264,7 @@ export interface PostFollowQueryParams extends PageParam {
   status?: PostFollowStatus;
   /** 排序字段：仅支持按发布时间排序（与后端默认值 ProductSortFieldEnum.CREATE_TIME 一致） */
   sortField?: PostFollowSortField;
-  /** 排序方向：默认降序（与后端默认值 SortDirectionEnum.DESC 一致） */
+  /** 排序方向：默认升序（与后端默认值 SortDirectionEnum.ASC 一致） */
   sortDir?: SortDirection;
 }
 

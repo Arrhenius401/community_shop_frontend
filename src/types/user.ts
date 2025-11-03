@@ -95,6 +95,8 @@ export interface LoginUserSimple {
   avatarUrl: string;
   /** 信用分：用于判断发布商品、发帖等业务权限，与后端 UserSimpleDTO.creditScore 一致 */
   creditScore: number;
+  /** 是否为管理员：用于判断是否展示管理员操作按钮 */
+  isAdmin: boolean;
 }
 
 /**
