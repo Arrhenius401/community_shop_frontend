@@ -30,6 +30,9 @@ export const useUserStore = defineStore('user', {
       // 持久化到 localStorage（避免刷新页面后状态丢失）
       localStorage.setItem('token', this.token);
       localStorage.setItem('tokenExpireTime', this.tokenExpireTime.toString());
+
+      // 持久化 userInfo 到 localStorage*（否则仅存在 Pinia 内存中，刷新后丢失）
+      localStorage.setItem('userInfo', JSON.stringify(this.userInfo));
     },
 
     /**
@@ -43,6 +46,7 @@ export const useUserStore = defineStore('user', {
       // 清除 localStorage 中的数据
       localStorage.removeItem('token');
       localStorage.removeItem('tokenExpireTime');
+      localStorage.removeItem('userInfo');
     },
   },
 
