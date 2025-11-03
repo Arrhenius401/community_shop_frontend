@@ -4,7 +4,7 @@
     <header class="bg-white shadow-sm border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center h-16">
-          <button @click="goBack" class="mr-4 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+          <button @click="$router.push('/admin')" class="mr-4 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"></path>
             </svg>
@@ -107,7 +107,7 @@
                 <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">#{{ user.userId }}</td>
                 <td class="px-4 py-3 whitespace-nowrap">
                   <div class="flex items-center">
-                    <img :src="user.avatarUrl" :alt="user.username" class="h-8 w-8 rounded-full">
+                    <img :src="user.avatarUrl ? user.avatarUrl : '/placeholder.svg?height=96&width=96'" :alt="user.username" class="h-8 w-8 rounded-full">
                     <span class="ml-2 text-sm font-medium text-gray-900">{{ user.username }}</span>
                   </div>
                 </td>
@@ -309,9 +309,6 @@ export default {
     resetFilters() {
       this.filters = { search: '', status: '', role: '' }
       this.searchUsers()
-    },
-    goBack() {
-      alert('返回管理面板')
     },
     viewUser(user: UserListItem) {
       this.selectedUser = user
