@@ -184,7 +184,7 @@
         </div>
         <div class="p-6" v-if="selectedUser">
           <div class="flex items-center mb-6">
-            <img :src="selectedUser.avatarUrl" :alt="selectedUser.username" class="h-16 w-16 rounded-full">
+            <img :src="selectedUser.avatarUrl ? selectedUser.avatarUrl : '/placeholder.svg?height=16&width=16'" :alt="selectedUser.username" class="h-16 w-16 rounded-full">
             <div class="ml-4">
               <h2 class="text-xl font-medium text-gray-900">{{ selectedUser.username }}</h2>
               <div class="flex items-center mt-2 space-x-2">
@@ -216,8 +216,8 @@
             </div>
           </div>
           <div class="flex justify-end space-x-3">
-            <button @click="showModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-              关闭
+            <button @click="$router.push(`/profile/${selectedUser.userId}`)" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+              查看简介
             </button>
             <button @click="toggleBan(selectedUser); showModal = false" :class="selectedUser.status === UserStatus.NORMAL ? 'bg-danger hover:bg-red-700' : 'bg-success hover:bg-green-700'" class="px-4 py-2 text-sm font-medium text-white rounded-lg">
               {{ selectedUser.status === UserStatus.NORMAL ? '封禁用户' : '解除封禁' }}

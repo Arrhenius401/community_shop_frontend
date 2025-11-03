@@ -213,7 +213,10 @@
             </span>
           </div>
           <div class="flex justify-end space-x-3 mt-4">
-            <button @click="toggleStatus(selectedPost); showModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+            <button @click="$router.push(`/post/${selectedPost.postId}`)" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg">
+              查看详情
+            </button>
+            <button @click="toggleStatus(selectedPost); showModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-yellow-300 border border-gray-300 rounded-lg hover:bg-yellow-400">
               {{ selectedPost.status === PostStatus.NORMAL ? '封禁帖子' : '恢复帖子' }}
             </button>
             <button @click="deletePost(selectedPost); showModal = false" class="px-4 py-2 text-sm font-medium text-white bg-danger rounded-lg hover:bg-red-700">

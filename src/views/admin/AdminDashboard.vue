@@ -16,8 +16,8 @@
               <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full"></span>
             </button>
             <div class="flex items-center" @click="$router.push('/profile')">
-              <img src="/placeholder.svg?height=32&width=32" alt="Admin" class="w-8 h-8 rounded-full">
-              <span class="ml-2 text-sm font-medium text-gray-700">管理员</span>
+              <img :src="user.avatarUrl ? user.avatarUrl : '/placeholder.svg?height=32&width=32'" alt="Admin" class="w-8 h-8 rounded-full">
+              <span class="ml-2 text-sm font-medium text-gray-700">{{ user.username ? user.username : '管理员' }}</span>
             </div>
           </div>
         </div>
@@ -224,6 +224,9 @@ export default {
       //   }
       // ]
     }
+  },
+  created() {
+    this.getUserFromStore()
   },
   methods: {
     async loadStats() {
