@@ -33,6 +33,7 @@ import UserManagement from '@/views/admin/UserManagement.vue';
 import PostManagement from '@/views/admin/PostManagement.vue';
 
 import { checkIsAdmin, checkIsLogin } from '@/api/user';
+import { useUserStore } from '@/stores/user';
 
 const routes = [
   {
@@ -252,6 +253,8 @@ router.beforeEach(async (to, from, next) => {
 
   // 已登录用户访问游客页面，重定向到首页
   if (to.meta.requiresGuest && isAuthenticated) {
+    const userStore = useUserStore();
+    userStore.logout();
     window.localStorage.removeItem('local-token');
     next();
     return;
