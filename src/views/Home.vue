@@ -111,6 +111,41 @@
               </div>
             </div>
           </div>
+
+          <!-- 添加分页控制 -->
+          <div class="flex items-center justify-center gap-2 py-6 mt-8 border-t border-gray-200">
+            <button 
+              @click="goToPage(1)" 
+              :disabled="currentPage === 1 || loading"
+              class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              首页
+            </button>
+            <button 
+              @click="goToPage(currentPage - 1)" 
+              :disabled="currentPage === 1 || loading"
+              class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              上一页
+            </button>
+            <span class="px-3 py-1.5 text-sm text-gray-700">
+              第 {{ currentPage }} / {{ totalPages }} 页
+            </span>
+            <button 
+              @click="goToPage(currentPage + 1)" 
+              :disabled="currentPage >= totalPages || loading"
+              class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              下一页
+            </button>
+            <button 
+              @click="goToPage(totalPages)" 
+              :disabled="currentPage >= totalPages || loading"
+              class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              末页
+            </button>
+          </div>
         </main>
 
         <!-- 右侧悬浮栏 -->
@@ -147,9 +182,10 @@
 //当这个值被修改时，任何依赖它的 DOM 或计算属性都会自动更新
 import { reactive } from 'vue'
 import { queryPostList } from '@/api/post';
-import { PostQueryParams, PostListItem, PostStatus } from '../types/post';
+import { PostQueryParams, PostListItem, PostStatus, PostSortField } from '../types/post';
 import { LoginUserSimple } from '@/types/user';
 import { useUserStore } from '@/stores/user';
+import { SortDirection } from '@/types/common';
 
 export default {
   name: 'Home',
@@ -170,7 +206,18 @@ export default {
         { name: '前端开发', count: '1.2k' },
         { name: '美食推荐', count: '856' },
         { name: '旅行攻略', count: '743' }
-      ]
+      ],
+      currentPage: 1,
+      pageSize: 20,
+      totalCount: 0,
+      loading: false,
+      PostSortField,
+      SortDirection
+    }
+  },
+  computed: {
+    totalPages() {
+      return Math.ceil(this.totalCount / this.pageSize)
     }
   },
   //Vue 的生命周期钩子(mounted、create等)是同步执行的，它们的主要目的是设置组件状态或初始化操作，而不是等待异步操作完成
@@ -188,13 +235,18 @@ export default {
     //for...of 用于遍历可迭代对象的值，适用于数组、字符串等
     //处理数组时，除非你确实需要索引，否则应优先使用 for...of 或 map
     async fetchPosts(){
+      this.loading = true
       try{
         const postQuery: PostQueryParams = {
           status: PostStatus.NORMAL,
-          pageNum: 1,
-          pageSize: 50,
+          pageNum: this.currentPage,
+          pageSize: this.pageSize,
+          sortField: PostSortField.UPDATE_TIME,
+          sortDir: SortDirection.DESC
         };
-        this.posts = (await queryPostList(postQuery)).list;
+        const response = await queryPostList(postQuery)
+        this.posts = response.list;
+        this.totalCount = response.total || (response.list && response.list.length) || 0
         this.posts = this.posts.map(post => ({
           ...post,
           summary: post.summary + '...',
@@ -203,7 +255,16 @@ export default {
         }));
       }catch(error){
         console.log("主页获取帖子出错: ", error)
-      } 
+      } finally {
+        this.loading = false
+      }
+    },
+    async goToPage(page: number) {
+      if (page < 1 || page > this.totalPages || this.loading) return
+      this.currentPage = page
+      await this.fetchPosts()
+      // 滚动到顶部
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     },
     getUserFromStore(){
       const userStore = useUserStore();
