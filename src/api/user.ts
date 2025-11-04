@@ -26,7 +26,7 @@ import type {
  * @returns 登录结果（含令牌与用户信息）
  */
 export const register = (params: RegisterParams) => {
-  return request.post<LoginResult>('/api/v1/users/register', params);
+  return request.post<boolean>('/api/v1/users/register', params);
 };
 
 /**
