@@ -155,8 +155,8 @@ export const queryPostFollowCount = (postId: number, params: PostFollowQueryPara
  * @param params 跟帖状态参数（与后端 PostFollowStatusUpdateDTO 对齐）
  * @returns 操作结果（true=成功）
  */
-export const updatePostFollowStatus = (postId: number, followId: number, params: PostFollowStatusUpdateParams) => {
-  return request.patch<boolean>(`/api/v1/posts/${postId}/follows/${followId}/status`, params);
+export const updatePostFollowStatus = (postId: number, params: PostFollowStatusUpdateParams) => {
+  return request.patch<boolean>(`/api/v1/posts/${postId}/follows/update/status`, params);
 };
 
 /**
