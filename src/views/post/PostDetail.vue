@@ -100,7 +100,7 @@
               <h3 class="text-lg font-semibold text-gray-900 mb-4">评论 ({{ totalComments }})</h3>
 
               <!-- 评论列表 增加高度和优化布局，支持更大的评论区域，每个评论高度约250px -->
-              <div class="space-y-4 mb-6 max-h-[1000px] overflow-y-auto border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <div class="space-y-4 mb-6 border border-gray-200 rounded-lg p-4 bg-gray-50">
                 <div v-if="comments.length === 0" class="text-center py-12 text-gray-500">
                   <p>暂无评论</p>
                 </div>
@@ -228,7 +228,7 @@
               <div class="space-y-2">
                 <button @click="setTopPost" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded">{{ post.isTop ? '取消置顶' : '置顶帖子' }}</button>
                 <button @click="setEssentialPost" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded">{{ post.isEssence ? '取消精华' : '加精华' }}</button> 
-                <button @click="hiddenPost" class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded">{{ post.status === PostStatus.NORMAL ? '隐藏帖子' : '取消隐藏' }}</button>
+                <button @click="blockPost" class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded">{{ post.status === PostStatus.NORMAL ? '封禁帖子' : '取消封禁' }}</button>
               </div>
             </div>
           </div>
@@ -254,7 +254,7 @@ export default {
       comments: [] as PostFollowDetail[],
       PostStatus,
       currentCommentPage: 1,
-      commentPageSize: 4,
+      commentPageSize: 10,
       totalComments: 0,
       loadingComments: false
     }
@@ -308,13 +308,13 @@ export default {
         await this.loadComments(postId)
       }
     },
-    async hiddenPost() {
+    async blockPost() {
       if (!this.post) return
       
       try {
         const params: PostStatusUpdateParams = {
           postId: this.post.postId,
-          status: this.post.status === PostStatus.NORMAL ? PostStatus.HIDDEN : PostStatus.NORMAL,
+          status: this.post.status === PostStatus.NORMAL ? PostStatus.BLOCKED : PostStatus.NORMAL,
           operatorId: this.user.userId
         }
         await updatePostStatus(params)
@@ -361,19 +361,14 @@ export default {
           // 调用后端API删除评论
           const params: PostFollowStatusUpdateParams = {
             postFollowId: comment.postFollowId,
-            targetStatus: PostFollowStatus.HIDDEN,
+            targetStatus: PostFollowStatus.BLOCKED,
           }
           await updatePostFollowStatus(
             this.post.postId,
-            comment.postFollowId,
             params
           )
-          const index = this.comments.findIndex(c => c.follower.userId === comment.follower.userId)
-          if (index > -1) {
-            this.comments.splice(index, 1)
-            this.totalComments -= 1
-          }
           alert('评论已删除')
+          await this.loadComments(this.post.postId)
         }
       } catch (error) {
         console.error('删除评论失败:', error)
@@ -424,7 +419,6 @@ export default {
           isEssence: this.post.isEssence ? false : true
         }
         await setPostEssenceOrTop(this.post.postId, params)
-        this.loadPostDetail(this.post.postId)
       } catch (error) {
         console.error('加精华帖子失败:', error)
       }
