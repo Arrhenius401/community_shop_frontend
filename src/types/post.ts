@@ -24,6 +24,7 @@ export enum PostStatus {
  */
 export enum PostSortField {
   CREATE_TIME = "CREATE_TIME",
+  UPDATE_TIME = "UPDATE_TIME",
   LIKE_COUNT = "LIKE_COUNT",
   COMMENT_COUNT = "COMMENT_COUNT",
 }
@@ -35,6 +36,7 @@ export enum PostSortField {
 export enum PostFollowStatus {
   NORMAL = "NORMAL",
   HIDDEN = "HIDDEN",
+  BLOCKED = "BLOCKED",
 }
 
 /**
@@ -95,6 +97,8 @@ export interface PostDetail {
   isLiked: boolean;
   /** 帖子发布时间：ISO格式字符串（如 "2024-05-20T14:30:00"），前端可格式化展示 */
   createTime: string;
+  /** 更新时间：ISO格式字符串（如 "2024-05-20T14:30:00"），前端可格式化展示 */
+  updateTime: string;
   /** 帖子状态：展示当前帖子状态，如正常、待审核、已拒绝等 */
   status: PostStatus;
   /** 发布者信息：脱敏后的用户详情，继承通用 BaseUserInfo 补充信用分 */
@@ -139,6 +143,8 @@ export interface PostListItem {
   isLiked: boolean;
   /** 发布时间：列表页格式化展示（如 "2小时前"） */
   createTime: string;
+  /** 更新时间：列表页格式化展示（如 "2小时前"） */
+  updateTime: string;
   /** 帖子状态：列表页展示当前帖子状态 */
   status: PostStatus;
   /** 发布者极简信息：仅包含ID和用户名，适配列表页紧凑展示 */
