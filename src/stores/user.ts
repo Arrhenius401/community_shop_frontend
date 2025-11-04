@@ -12,7 +12,8 @@ export const useUserStore = defineStore('user', {
     // 令牌过期时间（毫秒时间戳，用于判断令牌是否有效）
     tokenExpireTime: Number(localStorage.getItem('tokenExpireTime')) || 0,
     // 用户简易信息（如用户ID、用户名、头像，与后端 LoginResultDTO 对齐）
-    userInfo: {} as LoginUserSimple,
+    // 从localStorage恢复userInfo（关键补充）
+    userInfo: JSON.parse(localStorage.getItem('userInfo') || '{}') as LoginUserSimple,
   }),
 
   // 动作：修改状态的函数（如登录、登出、更新信息）
