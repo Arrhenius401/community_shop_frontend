@@ -557,19 +557,12 @@ export default {
         };
         
         // 调用注册API
-        const response = await register(registerParams);
+        const response : boolean = await register(registerParams);
         
         // 处理注册成功逻辑
-        if (response.token) {
+        if (response == true) {
           this.message.text = '注册成功！正在跳转...';
-          this.message.type = 'success';
-          
-          // 存储token和用户信息
-          localStorage.setItem('local-token', JSON.stringify({
-            token: response.token,
-            user: response.userInfo,
-            expireTime: response.tokenExpireTime
-          }));
+          this.message.type = 'success'
           
           await new Promise(resolve => setTimeout(resolve, 2000));
           this.$router.push('/login');
