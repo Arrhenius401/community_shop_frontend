@@ -22,9 +22,9 @@ import ProductList from '../views/product/ProductList.vue';
 import ProductDetail from '../views/product/ProductDetail.vue';
 
 // 引入order相关的界面组件
-import OrderDetail from '../views/Order/OrderDetail.vue';
-import OrderConfirm from '../views/Order/OrderConfirm.vue';
-import OrderPayment from '../views/Order/OrderPayment.vue';
+import OrderDetail from '../views/order/OrderDetail.vue';
+import OrderConfirm from '../views/order/OrderConfirm.vue';
+import OrderPayment from '../views/order/OrderPayment.vue';
 
 // 引入管理员相关的界面组件
 import AdminDashboard from '@/views/admin/AdminDashboard.vue';
