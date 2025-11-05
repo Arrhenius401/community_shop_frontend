@@ -24,6 +24,8 @@ export default defineConfig({
   
   // 构建配置（对应原 build）
   build: {
+    outDir: 'dist',  // 编译输出目录（默认dist）
+    assetsDir: 'static',  // 静态资源目录（CSS/JS/图片）
     rollupOptions: {
       input: path.resolve(__dirname, 'index.html')
     }
