@@ -19,7 +19,7 @@
           <div class="relative">
             <img :src="user.avatarUrl ? user.avatarUrl : '/placeholder.svg?height=96&width=96'" alt="用户头像" class="w-24 h-24 rounded-full">
             <button class="absolute bottom-0 right-0 bg-blue-500 text-white p-1 rounded-full hover:bg-blue-600">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" >
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
               </svg>
             </button>
@@ -29,7 +29,8 @@
 
             <div class="flex items-center justify-between mb-2">
               <h2 class="text-2xl font-bold text-gray-900">{{ user.username }}</h2>
-              <button class="p-2 text-gray-400 hover:text-gray-600">
+              <!-- 设置按钮添加点击事件打开编辑弹窗 -->
+              <button @click="showEditModal = true" class="p-2 text-gray-400 hover:text-gray-600">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -46,14 +47,6 @@
                 </svg>
                 <span>{{ user.gender === Gender.MALE ? '男' : user.gender === Gender.FEMALE ? '女' : '保密' }}</span>
               </div>
-
-              <!-- <div class="flex items-center space-x-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-                <span>{{ user.city || '未设置城市' }}</span>
-              </div> -->
             </div>
             
             <div class="flex items-center space-x-6 text-sm text-gray-500">
@@ -133,10 +126,20 @@
                         <span>{{ post.commentCount }} 评论</span>
                       </div>
                     </div>
+                    <span 
+                        :class="post.status === PostStatus.NORMAL ? 'bg-green-50 text-green-700' : 
+                                post.status === PostStatus.HIDDEN ? 'bg-yellow-50 text-yellow-700' : 
+                                post.status === PostStatus.PENDING ? 'bg-blue-50 text-blue-700' : 
+                                post.status === PostStatus.BLOCKED ? 'bg-purple-50 text-purple-700' :
+                                'bg-red-50 text-red-700'"
+                        class="px-2 py-1 text-xs font-medium rounded-full"
+                      >
+                        {{ statusMap[post.status] }}
+                      </span>
                     <div class="flex space-x-2 ml-4">
                       <button class="text-green-600 hover:text-green-700 text-sm" @click="$router.push(`/post/${post.postId}`)">查看</button>
                       <button class="text-blue-600 hover:text-blue-700 text-sm">编辑</button>
-                      <button class="text-red-600 hover:text-red-700 text-sm">删除</button>
+                      <button class="text-red-600 hover:text-red-700 text-sm" @click="deletePost(post.postId)" :disabled="post.status !== PostStatus.NORMAL">删除</button>
                     </div>
                   </div>
                 </div>
@@ -197,15 +200,84 @@
         </div>
       </div>
     </div>
+
+    <!-- 个人资料编辑弹窗 -->
+    <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" @click.self="showEditModal = false">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900">编辑个人资料</h3>
+          <button @click="showEditModal = false" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <form @submit.prevent="submitEditProfile" class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">用户名</label>
+            <input 
+              v-model="editForm.username" 
+              type="text" 
+              class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="输入用户名"
+            >
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">个人简介</label>
+            <textarea 
+              v-model="editForm.bio" 
+              rows="3"
+              class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              placeholder="输入个人简介"
+            ></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">性别</label>
+            <select 
+              v-model="editForm.gender"
+              class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option :value="Gender.UNKNOWN">保密</option>
+              <option :value="Gender.MALE">男</option>
+              <option :value="Gender.FEMALE">女</option>
+            </select>
+          </div>
+
+          <div class="flex space-x-3 pt-4 border-t border-gray-200">
+            <button 
+              type="button"
+              @click="showEditModal = false"
+              class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              取消
+            </button>
+            <button 
+              type="submit"
+              :disabled="submitting"
+              class="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            >
+              <svg v-if="submitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ submitting ? '保存中...' : '保存修改' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { useUserStore } from '@/stores/user';
 import { getUserProfile, updateUserProfile, checkIsAdmin } from '../../api/user';
-import { queryPrivatePostList } from '@/api/post';
+import { queryPrivatePostList, updatePostStatus } from '@/api/post';
 import { UserDetail, UserProfileUpdateParams, Gender } from '../../types/user';
-import { PostQueryParams, PostListItem } from '../../types/post';
+import { PostQueryParams, PostListItem, PostStatusUpdateParams, PostStatus } from '../../types/post';
 
 export default {
   name: 'UserProfile',
@@ -216,6 +288,13 @@ export default {
       activePostTab: 'all',
       user: {} as UserDetail,
       userStore: useUserStore(),
+      showEditModal: false,
+      submitting: false,
+      editForm: {
+        username: '',
+        bio: '',
+        gender: Gender.UNKNOWN as Gender,
+      },
       postTabs: [
         { key: 'all', label: '全部' },
         { key: 'published', label: '已发布' },
@@ -226,17 +305,24 @@ export default {
         { name: '待阅读', count: 12 },
         { name: '兴趣话题', count: 8 },
         { name: '技术文章', count: 15 }
-      ]
+      ],
+      statusMap: {
+        [PostStatus.DRAFT]: '草稿',
+        [PostStatus.NORMAL]: '正常',
+        [PostStatus.HIDDEN]: '隐藏',
+        [PostStatus.PENDING]: '待审核',
+        [PostStatus.BLOCKED]: '已封禁',
+        [PostStatus.DELETED]: '已删除'
+      },
+      PostStatus
     }
-  },mounted() {
+  },
+  mounted() {
     this.checkAdmin_profile()
     this.getUserFromToken()
     this.getMyPost()
   },
   methods: {
-    //前端方法的命名要谨慎
-    //若使用checkAdmin()作为名称，则调用此名称时，方法将指向api.js中的checkAdmin()方法
-    //仅在名称前加入"this."后，方法才指向本文件的checkIsAdmin()方法
     async checkAdmin_profile(){
       try{
         this.isAdmin = await checkIsAdmin()
@@ -247,6 +333,7 @@ export default {
     },
     async getUserFromToken(){
       this.user = await getUserProfile()
+      this.initEditForm()
     },
     async getMyPost(){
       try{
@@ -260,31 +347,72 @@ export default {
       }catch(error){
         console.log("获取本机用户创建帖子的请求失败: ", error)
       }
-      
     },
+    async deletePost(postId: number) {
+      try {
+        if(confirm('确定要删除这条评论吗？')){
+          const params : PostStatusUpdateParams = {
+            postId: postId,
+            status: PostStatus.DELETED,
+            operatorId: this.user.userId
+          };
+          await updatePostStatus(params);
+          this.getMyPost();
+          this.$emit('showToast', {
+            type: 'success',
+            title: '删除成功',
+            message: '帖子已删除'
+          });
+        }
+      } catch (error) {
+        console.error('删除帖子失败', error);
+      }
+    },
+    initEditForm() {
+      this.editForm = {
+        username: this.user.username || '',
+        bio: this.user.bio || '',
+        gender: this.user.gender || Gender.UNKNOWN
+      }
+    },
+    async submitEditProfile() {
+      this.submitting = true
+      try {
+        const updateParams: UserProfileUpdateParams = {
+          username: this.editForm.username,
+          bio: this.editForm.bio,
+          gender: this.editForm.gender
+        };
+        
+        const updatedUser = await updateUserProfile(updateParams);
+        this.user = updatedUser;
+        this.showEditModal = false;
 
-    // // 添加资料更新方法
-    // async updateProfile() {
-    //   const updateParams: UserProfileUpdateParams = {
-    //     username: this.user.username,
-    //     avatarUrl: this.user.avatarUrl,
-    //     bio: this.user.bio,
-    //     gender: this.user.gender as Gender,
-    //     interestTags: this.user.interestTags
-    //   };
-      
-    //   try {
-    //     const updatedUser = await updateUserProfile(updateParams);
-    //     this.user = updatedUser;
-    //     this.$emit('showToast', {
-    //       type: 'success',
-    //       title: '更新成功',
-    //       message: '个人资料已更新'
-    //     });
-    //   } catch (error) {
-    //     console.error('资料更新失败', error);
-    //   }
-    // }
+        this.$emit('showToast', {
+          type: 'success',
+          title: '更新成功',
+          message: '个人资料已更新'
+        });
+      } catch (error) {
+        console.error('资料更新失败', error);
+        this.$emit('showToast', {
+          type: 'error',
+          title: '更新失败',
+          message: '个人资料更新失败，请重试'
+        });
+      } finally {
+        this.submitting = false
+      }
+    }
   }
 }
 </script>
+
+<style scoped>
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+</style>
