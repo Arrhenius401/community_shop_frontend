@@ -60,7 +60,6 @@ const request: CustomAxiosInstance = axios.create({
 request.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const userStore = useUserStore();
-    console.log("interceptor已调用")
     // 仅当用户已登录（存在有效token）时，添加Authorization头
     if (userStore.token) {
       config.headers = config.headers || {};
