@@ -239,8 +239,9 @@ const router = createRouter({
 //全局前置守卫（Global Before Guards），用于在路由切换前执行功能，常用于权限验证
 router.beforeEach(async (to, from, next) => {
   let isAuthenticated = false;
+  const userStore = useUserStore();
   try {
-    const localToken = JSON.parse(window.localStorage.getItem('local-token'));
+    const localToken = userStore.token;
     if (localToken) {
       isAuthenticated = await checkIsLogin();
     }
