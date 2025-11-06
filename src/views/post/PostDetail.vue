@@ -419,6 +419,7 @@ export default {
           isEssence: this.post.isEssence ? false : true
         }
         await setPostEssenceOrTop(this.post.postId, params)
+        this.loadPostDetail(this.post.postId)
       } catch (error) {
         console.error('加精华帖子失败:', error)
       }
