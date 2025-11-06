@@ -115,32 +115,35 @@
             
             <div class="p-6">
               <div class="space-y-4">
-                <div v-for="post in myPosts" :key="post.postId" class="border border-gray-200 rounded-lg p-4">
-                  <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                      <h4 class="font-medium text-gray-900 mb-2">{{ post.title }}</h4>
-                      <p class="text-gray-600 text-sm mb-2">{{ post.summary }}</p>
-                      <div class="flex items-center space-x-4 text-sm text-gray-500">
-                        <span>{{ post.createTime }}</span>
-                        <span>{{ post.likeCount }} 点赞</span>
-                        <span>{{ post.commentCount }} 评论</span>
-                      </div>
+                <div v-for="post in myPosts" :key="post.postId" class="border border-gray-200 rounded-lg p-4 relative min-h-32">
+                  <!-- 右上角状态标识 -->
+                  <span 
+                      :class="post.status === PostStatus.NORMAL ? 'bg-green-50 text-green-700' : 
+                              post.status === PostStatus.HIDDEN ? 'bg-yellow-50 text-yellow-700' : 
+                              post.status === PostStatus.PENDING ? 'bg-blue-50 text-blue-700' : 
+                              post.status === PostStatus.BLOCKED ? 'bg-purple-50 text-purple-700' :
+                              'bg-red-50 text-red-700'"
+                      class="absolute top-4 right-4 px-2 py-1 text-xs font-medium rounded-full"
+                    >
+                      {{ statusMap[post.status] }}
+                  </span>
+                  
+                  <!-- 中间内容区域 -->
+                  <div class="flex-1 pr-32">
+                    <h4 class="font-medium text-gray-900 mb-2">{{ post.title }}</h4>
+                    <p class="text-gray-600 text-sm mb-2">{{ post.summary }}</p>
+                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                      <span>{{ post.createTime }}</span>
+                      <span>{{ post.likeCount }} 点赞</span>
+                      <span>{{ post.commentCount }} 评论</span>
                     </div>
-                    <span 
-                        :class="post.status === PostStatus.NORMAL ? 'bg-green-50 text-green-700' : 
-                                post.status === PostStatus.HIDDEN ? 'bg-yellow-50 text-yellow-700' : 
-                                post.status === PostStatus.PENDING ? 'bg-blue-50 text-blue-700' : 
-                                post.status === PostStatus.BLOCKED ? 'bg-purple-50 text-purple-700' :
-                                'bg-red-50 text-red-700'"
-                        class="px-2 py-1 text-xs font-medium rounded-full"
-                      >
-                        {{ statusMap[post.status] }}
-                      </span>
-                    <div class="flex space-x-2 ml-4">
-                      <button class="text-green-600 hover:text-green-700 text-sm" @click="$router.push(`/post/${post.postId}`)">查看</button>
-                      <button class="text-blue-600 hover:text-blue-700 text-sm">编辑</button>
-                      <button class="text-red-600 hover:text-red-700 text-sm" @click="deletePost(post.postId)" :disabled="post.status !== PostStatus.NORMAL">删除</button>
-                    </div>
+                  </div>
+
+                  <!-- 右下角操作按钮 -->
+                  <div class="absolute bottom-4 right-4 flex space-x-2">
+                    <button class="text-green-600 hover:text-green-700 text-sm disabled:text-gray-400" @click="$router.push(`/post/${post.postId}`)">查看</button>
+                    <button class="text-blue-600 hover:text-blue-700 text-sm disabled:text-gray-400" @click="openEditPostModal(post.postId)" :disabled="post.status !== PostStatus.NORMAL">编辑</button>
+                    <button class="text-red-600 hover:text-red-700 text-sm disabled:text-gray-400" @click="deletePost(post.postId)" :disabled="post.status !== PostStatus.NORMAL">删除</button>
                   </div>
                 </div>
               </div>
@@ -269,15 +272,73 @@
         </form>
       </div>
     </div>
+    
+    <!-- 添加帖子编辑弹窗 -->
+    <div v-if="showEditPostModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" @click.self="showEditPostModal = false">
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900">编辑帖子</h3>
+          <button @click="showEditPostModal = false" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <form @submit.prevent="submitEditPost" class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">标题</label>
+            <input 
+              v-model="editPostForm.title" 
+              type="text" 
+              class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="输入帖子标题"
+            >
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">内容</label>
+            <textarea 
+              v-model="editPostForm.content" 
+              rows="6"
+              class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              placeholder="输入帖子内容"
+            ></textarea>
+          </div>
+
+          <div class="flex space-x-3 pt-4 border-t border-gray-200">
+            <button 
+              type="button"
+              @click="showEditPostModal = false"
+              class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              取消
+            </button>
+            <button 
+              type="submit"
+              :disabled="submittingPost"
+              class="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            >
+              <svg v-if="submittingPost" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ submittingPost ? '保存中...' : '保存修改' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script lang="ts">
 import { useUserStore } from '@/stores/user';
 import { getUserProfile, updateUserProfile, checkIsAdmin } from '../../api/user';
-import { queryPrivatePostList, updatePostStatus } from '@/api/post';
+import { getPostDetail, queryPrivatePostList, updatePost, updatePostStatus } from '@/api/post';
 import { UserDetail, UserProfileUpdateParams, Gender } from '../../types/user';
-import { PostQueryParams, PostListItem, PostStatusUpdateParams, PostStatus } from '../../types/post';
+import { PostQueryParams, PostUpdateParams, PostStatusUpdateParams, PostStatus, PostDetail, PostListItem } from '../../types/post';
 
 export default {
   name: 'UserProfile',
@@ -288,12 +349,21 @@ export default {
       activePostTab: 'all',
       user: {} as UserDetail,
       userStore: useUserStore(),
+      /** 编辑用户个人信息表单数据 */
       showEditModal: false,
       submitting: false,
       editForm: {
         username: '',
         bio: '',
         gender: Gender.UNKNOWN as Gender,
+      },
+      /** 编辑帖子表单数据 */
+      showEditPostModal: false,
+      submittingPost: false,
+      editingPostId: null as number | null,
+      editPostForm: {
+        title: '',
+        content: ''
       },
       postTabs: [
         { key: 'all', label: '全部' },
@@ -366,6 +436,59 @@ export default {
         }
       } catch (error) {
         console.error('删除帖子失败', error);
+      }
+    },
+    async openEditPostModal(postId: number) {
+      try{
+        const postDetail: PostDetail = await getPostDetail(postId)
+        this.editingPostId = postId
+        this.editPostForm = {
+          title: postDetail.title,
+          content: postDetail.content
+        }
+        this.showEditPostModal = true
+      }catch(error){
+        console.log("获取帖子详情请求失败: ", error)
+        this.$emit('showToast', {
+          type: 'error',
+          title: '获取帖子详情失败',
+          message: '请稍后重试'
+        })
+      }
+    },
+
+    async submitEditPost() {
+      const postId = this.editingPostId
+      if(postId == null){
+        return
+      }
+      this.submittingPost = true
+      try {
+        const params: PostUpdateParams = {
+          postId: postId,
+          operatorId: this.user.userId,
+          title: this.editPostForm.title,
+          content: this.editPostForm.content
+        }
+        
+        await updatePost(postId, params)
+        this.getMyPost()
+        this.showEditPostModal = false
+
+        this.$emit('showToast', {
+          type: 'success',
+          title: '更新成功',
+          message: '帖子已更新'
+        })
+      } catch (error) {
+        console.error('编辑帖子失败', error)
+        this.$emit('showToast', {
+          type: 'error',
+          title: '更新失败',
+          message: '帖子更新失败，请重试'
+        })
+      } finally {
+        this.submittingPost = false
       }
     },
     initEditForm() {
