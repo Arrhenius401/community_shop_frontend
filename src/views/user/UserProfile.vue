@@ -239,8 +239,6 @@ export default {
     //仅在名称前加入"this."后，方法才指向本文件的checkIsAdmin()方法
     async checkAdmin_profile(){
       try{
-        const localToken = JSON.parse(window.localStorage.getItem('local-token') || '{}');
-        console.log("profile界面所传输token: ", localToken)
         this.isAdmin = await checkIsAdmin()
         console.log("管理身份认证状态: ", this.isAdmin)
       }catch(error){
