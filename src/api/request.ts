@@ -65,8 +65,6 @@ request.interceptors.request.use(
     if (userStore.token) {
       config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${userStore.token}`; // 格式严格匹配后端AuthInterceptor校验逻辑
-      console.log("now:",Date.now())
-      console.log("expire:",userStore.tokenExpireTime)
     }
     return config;
   },
