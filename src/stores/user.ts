@@ -37,6 +37,17 @@ export const useUserStore = defineStore('user', {
     },
 
     /**
+     * 更新用户信息（使用于用户个人简介更新）
+     * @param userInfo 后端返回的简易用户信息（与 LoginUserSimple 类型对齐）
+     */
+    updateUserInfo(userInfo: LoginUserSimple) {
+      this.userInfo = userInfo;
+
+      // 持久化 userInfo 到 localStorage*（否则仅存在 Pinia 内存中，刷新后丢失）
+      localStorage.setItem('userInfo', JSON.stringify(this.userInfo));
+    },
+
+    /**
      * 登出：清除登录态（适配后端 401 未登录异常）
      */
     logout() {

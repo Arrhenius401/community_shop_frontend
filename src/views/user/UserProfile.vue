@@ -337,7 +337,7 @@
 import { useUserStore } from '@/stores/user';
 import { getUserProfile, updateUserProfile, checkIsAdmin } from '../../api/user';
 import { getPostDetail, queryPrivatePostList, updatePost, updatePostStatus } from '@/api/post';
-import { UserDetail, UserProfileUpdateParams, Gender } from '../../types/user';
+import { UserDetail, LoginUserSimple, UserProfileUpdateParams, Gender } from '../../types/user';
 import { PostQueryParams, PostUpdateParams, PostStatusUpdateParams, PostStatus, PostDetail, PostListItem } from '../../types/post';
 
 export default {
@@ -510,6 +510,16 @@ export default {
         const updatedUser = await updateUserProfile(updateParams);
         this.user = updatedUser;
         this.showEditModal = false;
+
+        // 更新pinia中userInfo信息
+        const userInfo: LoginUserSimple = {
+          userId: this.user.userId,
+          username: this.user.username,
+          avatarUrl: this.user.avatarUrl,
+          creditScore: this.user.creditScore,
+          isAdmin: this.isAdmin
+        }
+        this.userStore.updateUserInfo(userInfo)
 
         this.$emit('showToast', {
           type: 'success',
