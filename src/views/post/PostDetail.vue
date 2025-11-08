@@ -30,9 +30,9 @@
               <h1 class="text-2xl font-bold text-gray-900 mb-4">{{ post.title }}</h1>
 
               <div class="flex items-center space-x-3 mb-4">
-                <img :src="post.publisher.avatarUrl ? post.publisher.avatarUrl : '/placeholder.svg?height=32&width=32'" alt="作者头像" class="w-12 h-12 rounded-full">
+                <img :src="post.publisher?.avatarUrl || '/placeholder.svg?height=32&width=32'" alt="作者头像" class="w-12 h-12 rounded-full">
                 <div>
-                  <h3 class="font-semibold text-gray-900">{{ post.publisher.username }}</h3>
+                  <h3 class="font-semibold text-gray-900">{{ post.publisher?.username || '未知用户' }}</h3>
                   <p class="text-sm text-gray-500">{{ post.createTime }}</p>
                 </div>
               </div>
@@ -109,7 +109,7 @@
                   <div>
                     <div class="flex items-center justify-between mb-3">
                       <div class="flex items-center space-x-3">
-                        <img :src="comment.follower.avatarUrl ? comment.follower.avatarUrl : '/placeholder.svg?height=40&width=40'" alt="评论者头像" class="w-10 h-10 rounded-full">
+                        <img :src="comment.follower?.avatarUrl || '/placeholder.svg?height=40&width=40'" alt="评论者头像" class="w-10 h-10 rounded-full">
                         <div>
                           <span class="font-medium text-gray-900">{{ comment.follower.username }}</span>
                           <span class="text-sm text-gray-500 ml-2">{{ comment.createTime }}</span>
@@ -214,9 +214,9 @@
           <div class="bg-white rounded-lg shadow-sm p-6 sticky top-24">
             <div class="text-center mb-4">
               <div @click="$router.push(`/profile/${post.publisher.userId}`)" class="mb-4" >
-                <img :src="post.publisher.avatarUrl || '/placeholder.svg?height=64&width=64'" alt="作者头像" class="w-16 h-16 rounded-full mx-auto mb-3">
-                <h3 class="font-semibold text-gray-900">{{ post.publisher.username }}</h3>
-                <p class="text-sm text-gray-500 mb-2">信用分：{{ post.publisher.creditScore }}</p>
+                <img :src="post.publisher?.avatarUrl || '/placeholder.svg?height=64&width=64'" alt="作者头像" class="w-16 h-16 rounded-full mx-auto mb-3">
+                <h3 class="font-semibold text-gray-900">{{ post.publisher?.username || '未知用户'}}</h3>
+                <p class="text-sm text-gray-500 mb-2">信用分：{{ post.publisher?.creditScore || '未知' }}</p>
               </div>
               <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium">
                 关注
@@ -427,10 +427,6 @@ export default {
     getUserFromStore(){
       const userStore = useUserStore();
       this.user = userStore.userInfo;
-      // 延迟打印，等待响应式数据初始化
-      setTimeout(() => {
-        console.info("pinia存储用户信息:", userStore.userInfo);
-      }, 0);
     },
     openImageModal(image: string) {
       // 实现图片预览功能
