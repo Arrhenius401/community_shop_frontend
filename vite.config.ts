@@ -15,7 +15,7 @@ export default defineConfig({
     proxy: {
       // 代理配置：匹配以 "/api" 开头的请求
       '/api': {  // 修正原配置的匹配规则（添加前缀 /）
-        target: 'http://localhost:8090',  // 后端端口
+        target: 'https://localhost:8090',  // 后端端口
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')  // 路径重写（Vite 用 rewrite 而非 pathRewrite）
       }
