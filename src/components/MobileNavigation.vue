@@ -14,7 +14,7 @@
       </router-link>
       
       <router-link 
-        to="/products" 
+        to="/" 
         class="flex flex-col items-center justify-center space-y-1 text-xs transition-colors"
         :class="$route.path.startsWith('/product') ? 'text-blue-600' : 'text-gray-600'"
       >
