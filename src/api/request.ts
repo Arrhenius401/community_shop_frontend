@@ -39,6 +39,9 @@ interface CustomAxiosInstance extends AxiosInstance {
   patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>;
 }
 
+/** 从环境变量获取 API 基础路径（开发/生产自动区分） */
+const baseURL = import.meta.env.VITE_API_BASE_URL;
+
 /**
  * 创建Axios实例，基础配置严格对齐后端Controller层规范
  * - baseURL：匹配后端接口统一前缀（文档中所有接口均以/api/v1开头）
@@ -46,7 +49,7 @@ interface CustomAxiosInstance extends AxiosInstance {
  * - headers：默认JSON格式，匹配后端@RequestBody接收逻辑
  */
 const request: CustomAxiosInstance = axios.create({
-  baseURL: 'https://localhost:8090', // 后端服务默认端口+接口前缀，适配文档规范
+  baseURL: baseURL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json;charset=utf-8'
