@@ -33,7 +33,7 @@ export default defineConfig(({ mode }: ConfigEnv) => {
       // 代理配置：文档要求“API请求转发至8090端口后端”，仅开发模式生效
       proxy: isDevelopment ? {
         '/api': { // 假设API前缀为/api（可根据项目实际调整，不违背文档逻辑）
-          target: 'https://localhost:8090', // 文档指定的后端服务端口8090
+          target: 'http://localhost:8090', // 文档指定的后端服务端口8090
           changeOrigin: true, // 必选：解决跨域（文档未明说但为API请求必需）
           secure: false // 必选：允许后端自签名证书（开发环境常见场景）
         }
