@@ -394,8 +394,6 @@ export default {
         status = this.emailOrPhoneNumber(loginParams.loginId)
         //调用登录API
         if(status == LoginType.EMAIL || status == LoginType.PHONE_NUMBER){
-          //输出日志
-          console.log("发出登录请求: 凭证信息 = ",loginParams.loginId,";密码 = ",loginParams.credential)
           response = await loginByPassword(loginParams)
         }else{
           //输出日志
